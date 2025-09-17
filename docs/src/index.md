@@ -22,6 +22,7 @@ using SEQ2EXPdata
 ds = SEQ2EXP_Dataset(["ATCG", "GGTA"], [1.2, 3.4])
 
 # Dataset with multiple features and names
+# Note that the second dimension of the labels must always match the number of strings.
 ds2 = SEQ2EXP_Dataset(
     ["ATCG", "GGTA"],
     [1.2 2.3; 3.4 4.5],
