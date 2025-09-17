@@ -43,5 +43,6 @@ end
 include("checks.jl")
 include("utils.jl")
 
+export SEQ2EXP_Dataset
 
 end

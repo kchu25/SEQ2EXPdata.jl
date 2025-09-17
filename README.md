@@ -1,5 +1,4 @@
 # SEQ2EXPdata
-# SEQ2EXPdata
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://kchu25.github.io/SEQ2EXPdata.jl/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://kchu25.github.io/SEQ2EXPdata.jl/dev/)
@@ -10,13 +9,13 @@ SEQ2EXPdata is a Julia package for organizing biological sequence data and their
 
 ## What does it do?
 
-- Stores your sequences and their expression labels together, so you don’t have to juggle multiple arrays.
+- Stores your sequences and their expression labels together, so you don't have to juggle multiple arrays.
 - Makes sure your data is consistent (all sequences the same length, labels match up, etc.).
 - Lets you add feature names for your labels if you want.
 
 ## Quick Start
 
-Here’s how you might use SEQ2EXPdata in your own project:
+Here's how you might use SEQ2EXPdata in your own project:
 
 ```julia
 using SEQ2EXPdata
@@ -30,4 +29,16 @@ ds2 = SEQ2EXP_Dataset(
     [1.2 2.3; 3.4 4.5],
     feature_names=["exp1", "exp2"]
 )
+
+# The dataset displays nicely when shown
+ds |> show
+# Output: SEQ2EXP_Dataset with 2 sequences of length 4
+#         Labels: Vector of length 2
+#         No feature names provided.
 ```
+
+## Documentation
+
+Check out the [documentation](https://kchu25.github.io/SEQ2EXPdata.jl/dev/) for details on all the features.
+
+
