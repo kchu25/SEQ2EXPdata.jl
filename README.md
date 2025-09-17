@@ -24,9 +24,11 @@ using SEQ2EXPdata
 ds = SEQ2EXP_Dataset(["ATCG", "GGTA"], [1.2, 3.4])
 
 # Example with multiple labels and feature names
+# 3 sequences with 2 featuress
 ds2 = SEQ2EXP_Dataset(
-    ["ATCG", "GGTA"],
-    [1.2 2.3; 3.4 4.5],
+    ["ATCG", "GGTA", "CCAC"],
+    [1.2 2.3 4.1; 
+     3.4 4.5 1.2],
     feature_names=["exp1", "exp2"]
 )
 
