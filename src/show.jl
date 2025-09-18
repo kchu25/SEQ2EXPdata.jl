@@ -13,8 +13,4 @@ function Base.show(io::IO, dataset::SEQ2EXP_Dataset)
 end
 
 
-get_sequence_and_labels(dataset::SEQ2EXP_Dataset) = (dataset.strings, dataset.labels)
-
-get_feature_names(dataset::SEQ2EXP_Dataset) = dataset.feature_names
-
 
