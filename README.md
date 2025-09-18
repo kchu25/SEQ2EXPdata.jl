@@ -12,6 +12,7 @@ SEQ2EXPdata is a Julia package for organizing biological sequence data and their
 - Stores your sequences and their expression labels together, so you don't have to juggle multiple arrays.
 - Makes sure your data is consistent (all sequences the same length, labels match up, etc.).
 - Lets you add feature names for your labels if you want.
+- Optionally computes consensus sequences from your sequence data; useful when e.g. the dataset is a mutagenesis study.
 
 ## Quick Start
 
@@ -33,10 +34,21 @@ ds2 = SEQ2EXP_Dataset(
 )
 
 # The dataset displays nicely when shown
-ds |> show
+ds2 |> show
 # Output: SEQ2EXP_Dataset with 2 sequences of length 4
-#         Labels: Vector of length 2
-#         No feature names provided.
+#         Labels: Matrix of size (2, 2)
+#         Feature names provided with length 2
+
+# You can also create datasets with consensus sequences
+ds3 = SEQ2EXP_Dataset(
+    ["ATCG", "ATCA", "ATGG"], 
+    [1.0, 2.0, 3.0]; 
+    GET_CONSENSUS=true
+)
+
+# Check if consensus exists and retrieve it
+has_consensus(ds3)  # returns true
+get_consensus(ds3)  # returns "ATCG" (most frequent at each position)
 ```
 
 ## Documentation
