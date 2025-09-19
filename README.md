@@ -66,7 +66,7 @@ fnames = get_feature_names(ds2)
 len = get_sequence_length(ds2)
 
 # Get the number of features (columns) in the labels
-nfeatures = get_feature_counts(ds2)
+nfeatures = get_feature_counts(ds2)  # 1 for vector labels, number of rows for matrix labels
 ```
 
 
