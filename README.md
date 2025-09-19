@@ -63,7 +63,10 @@ seqs, labs = get_sequence_and_labels(ds2)
 fnames = get_feature_names(ds2)
 
 # Get the length of the sequences
-len = get_sequence_length(ds2.strings)
+len = get_sequence_length(ds2)
+
+# Get the number of features (columns) in the labels
+nfeatures = get_feature_counts(ds2)
 ```
 
 

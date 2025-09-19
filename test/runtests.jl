@@ -111,10 +111,15 @@ using Test
         @test get_feature_names(ds) === nothing
 
         # get_sequence_length
-        @test get_sequence_length(strings) == 4
+        @test get_sequence_length(ds) == 4
 
-        # With feature names
-        ds2 = SEQ2EXP_Dataset(strings, labels, ["exp1", "exp2", "exp3"])
-        @test get_feature_names(ds2) == ["exp1", "exp2", "exp3"]
+        # get_feature_counts (vector labels)
+        @test get_feature_counts(ds) == 3
+
+        # With feature names and matrix labels
+        labels2 = [1.0 2.0 3.0; 4.0 5.0 6.0]
+        ds2 = SEQ2EXP_Dataset(["ATCG", "GGTA"], labels2, ["exp1", "exp2"])
+        @test get_feature_names(ds2) == ["exp1", "exp2"]
+        @test get_feature_counts(ds2) == 3
     end
 end
