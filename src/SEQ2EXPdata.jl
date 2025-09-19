@@ -82,7 +82,14 @@ Get the feature names from the dataset, or `nothing` if not provided.
 """
 get_feature_names(dataset::SEQ2EXP_Dataset) = dataset.feature_names
 
+"""
+    get_sequence_length(strings::Vector{String}) -> Int
 
-export SEQ2EXP_Dataset, has_consensus, get_consensus, get_sequence_and_labels, get_feature_names
+Get the length of the sequences in the dataset.
+"""
+get_sequence_length(strings::Vector{String}) = length(strings[1])
+
+export SEQ2EXP_Dataset, has_consensus, get_consensus, get_sequence_and_labels, get_feature_names, get_sequence_length
+
 
 end
