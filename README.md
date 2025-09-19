@@ -51,6 +51,22 @@ has_consensus(ds3)  # returns true
 get_consensus(ds3)  # returns "ATCG" (most frequent at each position)
 ```
 
+## Utility Functions
+
+You can access the underlying data and metadata easily:
+
+```julia
+# Get sequences and labels as a tuple
+seqs, labs = get_sequence_and_labels(ds2)
+
+# Get feature names (or nothing if not provided)
+fnames = get_feature_names(ds2)
+
+# Get the length of the sequences
+len = get_sequence_length(ds2.strings)
+```
+
+
 ## Documentation
 
 Check out the [documentation](https://kchu25.github.io/SEQ2EXPdata.jl/dev/) for details on all the features.

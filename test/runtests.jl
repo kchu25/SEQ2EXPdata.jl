@@ -95,4 +95,26 @@ using Test
         @test occursin("SEQ2EXP_Dataset", output)
         @test occursin("2 sequences", output)
     end
+    
+    @testset "Utility Functions" begin
+        strings = ["ATCG", "GGTA", "CCAC"]
+        labels = [1.2, 3.4, 4.1]
+        feature_names = nothing
+        ds = SEQ2EXP_Dataset(strings, labels, feature_names)
+
+        # get_sequence_and_labels
+        seqs, labs = get_sequence_and_labels(ds)
+        @test seqs == strings
+        @test labs == labels
+
+        # get_feature_names
+        @test get_feature_names(ds) === nothing
+
+        # get_sequence_length
+        @test get_sequence_length(strings) == 4
+
+        # With feature names
+        ds2 = SEQ2EXP_Dataset(strings, labels, ["exp1", "exp2", "exp3"])
+        @test get_feature_names(ds2) == ["exp1", "exp2", "exp3"]
+    end
 end
