@@ -5,7 +5,7 @@
 [![Build Status](https://github.com/kchu25/SEQ2EXPdata.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/kchu25/SEQ2EXPdata.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/kchu25/SEQ2EXPdata.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/kchu25/SEQ2EXPdata.jl)
 
-SEQ2EXPdata is a Julia package for organizing biological sequence data and their associated real-valued (e.g. expression) labels. It is suitable for DNA, RNA, or protein sequence datasets, and helps keep your data consistent and analysis-ready.
+SEQ2EXPdata is a Julia package for organizing biological sequence data with their associated numerical labels (e.g., expression levels, binding affinities, or other measurements). It works with DNA, RNA, or protein sequences and ensures your data stays consistent and analysis-ready.
 
 ## What does it do?
 
@@ -21,11 +21,17 @@ Here's how you might use SEQ2EXPdata in your own project:
 ```julia
 using SEQ2EXPdata
 
-# Simple example with one label per sequence
+""" Simple example: mapping DNA sequences to their expression values.
+Each sequence has one corresponding numerical label:
+- DNA sequence "ATCG" maps to expression value 1.2
+- DNA sequence "GGTA" maps to expression value 3.4
+"""
 ds = SEQ2EXP_Dataset(["ATCG", "GGTA"], [1.2, 3.4])
 
-# Example with multiple labels and feature names
-# 3 sequences with 2 features
+""" Example with named features for each sequence
+"ATCG" has exp1=1.2 and exp2=3.4
+"GGTA" has exp1=2.3 and exp2=4.5  
+"CCAC" has exp1=4.1 and exp2=1.2 """
 ds2 = SEQ2EXP_Dataset(
     ["ATCG", "GGTA", "CCAC"],
     [1.2 2.3 4.1; 
