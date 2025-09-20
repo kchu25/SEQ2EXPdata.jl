@@ -186,4 +186,6 @@ using Test
         @test eltype(ds_mat_f32.labels) == Float32
         @test ds_mat_f32.labels == Float32[1 2; 3 4]
     end
+
+    include("test_onehot.jl")
 end
