@@ -57,6 +57,24 @@ has_consensus(ds3)  # returns true
 get_consensus(ds3)  # returns "ATCG" (most frequent at each position)
 ```
 
+## @seq2exp Macro
+
+For more concise dataset creation, you can use the `@seq2exp` macro:
+
+```julia
+# Simple case - equivalent to SEQ2EXP_Dataset(["ATCG", "GGTA"], [1.2, 3.4])
+ds_macro1 = @seq2exp ["ATCG", "GGTA"] [1.2, 3.4]
+
+# With feature names - equivalent to above ds2 example
+ds_macro2 = @seq2exp ["ATCG", "GGTA", "CCAC"] [1.2 2.3 4.1; 3.4 4.5 1.2] ["exp1", "exp2"]
+
+# With consensus computation
+ds_macro3 = @seq2exp ["ATCG", "ATCA", "ATGG"] [1.0, 2.0, 3.0] nothing GET_CONSENSUS=true
+
+# To see what the macro expands to (useful for debugging):
+# @macroexpand @seq2exp ["ATCG", "GGTA"] [1.2, 3.4]
+```
+
 ## Utility Functions
 
 You can access the underlying data and metadata easily:

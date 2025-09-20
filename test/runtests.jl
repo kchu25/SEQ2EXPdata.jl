@@ -122,4 +122,38 @@ using Test
         @test get_feature_names(ds2) == ["exp1", "exp2"]
         @test get_feature_counts(ds2) == 2
     end
+    
+    @testset "@seq2exp Macro Tests" begin
+        # Test simple case
+        ds_macro1 = @seq2exp ["ATCG", "GGTA"] [1.2, 3.4]
+        @test ds_macro1.strings == ["ATCG", "GGTA"]
+        @test ds_macro1.labels == [1.2, 3.4]
+        @test ds_macro1.feature_names === nothing
+        @test ds_macro1.consensus === nothing
+
+        # Test with feature names
+        ds_macro2 = @seq2exp ["ATCG", "GGTA"] [1.0 2.0; 3.0 4.0] ["exp1", "exp2"]
+        @test ds_macro2.strings == ["ATCG", "GGTA"]
+        @test ds_macro2.labels == [1.0 2.0; 3.0 4.0]
+        @test ds_macro2.feature_names == ["exp1", "exp2"]
+        @test ds_macro2.consensus === nothing
+
+        # Test with consensus computation
+        ds_macro3 = @seq2exp ["ATCG", "ATCA", "ATGG"] [1.0, 2.0, 3.0] nothing GET_CONSENSUS=true
+        @test ds_macro3.strings == ["ATCG", "ATCA", "ATGG"]
+        @test ds_macro3.labels == [1.0, 2.0, 3.0]
+        @test ds_macro3.feature_names === nothing
+        @test has_consensus(ds_macro3)
+        @test get_consensus(ds_macro3) == "ATCG"
+
+        # Test that macro produces equivalent results to constructor
+        strings = ["ATCG", "GGTA"]
+        labels = [1.2, 3.4]
+        ds_constructor = SEQ2EXP_Dataset(strings, labels)
+        ds_macro = @seq2exp strings labels
+        @test ds_constructor.strings == ds_macro.strings
+        @test ds_constructor.labels == ds_macro.labels
+        @test ds_constructor.feature_names == ds_macro.feature_names
+        @test ds_constructor.consensus == ds_macro.consensus
+    end
 end

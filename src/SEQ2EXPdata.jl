@@ -47,6 +47,44 @@ struct SEQ2EXP_Dataset{T <: Real}
 end
 
 
+"""
+    @seq2exp sequences labels [feature_names] [GET_CONSENSUS=false]
+
+A convenient macro for creating SEQ2EXP_Dataset instances with cleaner syntax.
+
+# Arguments
+- `sequences`: Vector of biological sequences
+- `labels`: Vector or Matrix of expression values  
+- `feature_names` (optional): Vector of feature names
+- `GET_CONSENSUS` (optional): Boolean flag to compute consensus sequence
+
+# Examples
+```julia
+# Simple case
+ds1 = @seq2exp ["ATCG", "GGTA"] [1.2, 3.4]
+
+# With feature names
+ds2 = @seq2exp ["ATCG", "GGTA"] [1.2 2.3; 3.4 4.5] ["exp1", "exp2"]
+
+# With consensus computation
+ds3 = @seq2exp ["ATCG", "ATCA"] [1.0, 2.0] nothing GET_CONSENSUS=true
+```
+"""
+macro seq2exp(sequences, labels, feature_names=nothing, options...)
+    # Parse keyword arguments
+    kwargs = []
+    for opt in options
+        if isa(opt, Expr) && opt.head == :(=) && opt.args[1] == :GET_CONSENSUS
+            push!(kwargs, Expr(:kw, :GET_CONSENSUS, esc(opt.args[2])))
+        end
+    end
+    
+    quote
+        SEQ2EXP_Dataset($(esc(sequences)), $(esc(labels)), $(esc(feature_names)); $(kwargs...))
+    end
+end
+
+
 include("checks.jl")
 include("consensus.jl")
 include("show.jl")
@@ -99,6 +137,7 @@ Get the length of the sequences in the dataset.
 get_sequence_length(dataset::SEQ2EXP_Dataset) = length(dataset.strings[1])
 
 export SEQ2EXP_Dataset, 
+       @seq2exp,
        has_consensus, 
        get_consensus, 
        get_sequence_and_labels, 
