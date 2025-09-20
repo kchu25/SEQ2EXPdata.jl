@@ -114,8 +114,7 @@ ods = OnehotSEQ2EXP_Dataset(ds)
 # ods.raw_data is the original dataset
 
 # Show the one-hot encoded dataset
-ds2 = OnehotSEQ2EXP_Dataset(ds)
-ds2 |> show
+ods |> show
 # Output: OnehotSEQ2EXP_Dataset with 2 sequences of length 4
 #         One-hot tensor shape: (4, 4, 1, 2)
 #         Labels: 1 feature for 2 data points
