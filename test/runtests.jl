@@ -156,4 +156,34 @@ using Test
         @test ds_constructor.feature_names == ds_macro.feature_names
         @test ds_constructor.consensus == ds_macro.consensus
     end
+    
+    @testset "Type Conversion" begin
+        strings = ["ATCG", "GGTA"]
+        labels = [1, 2]
+
+        # Default: inferred type (Int)
+        ds_int = SEQ2EXP_Dataset(strings, labels)
+        @test eltype(ds_int.labels) == Int
+
+        # Specify Float32
+        ds_f32 = SEQ2EXP_Dataset(strings, labels; type=Float32)
+        @test eltype(ds_f32.labels) == Float32
+        @test ds_f32.labels == Float32[1, 2]
+
+        # Specify Float64
+        ds_f64 = SEQ2EXP_Dataset(strings, labels; type=Float64)
+        @test eltype(ds_f64.labels) == Float64
+        @test ds_f64.labels == Float64[1, 2]
+
+        # Specify Float16
+        ds_f16 = SEQ2EXP_Dataset(strings, labels; type=Float16)
+        @test eltype(ds_f16.labels) == Float16
+        @test ds_f16.labels == Float16[1, 2]
+
+        # Matrix case
+        labels_mat = [1 2; 3 4]
+        ds_mat_f32 = SEQ2EXP_Dataset(strings, labels_mat; type=Float32)
+        @test eltype(ds_mat_f32.labels) == Float32
+        @test ds_mat_f32.labels == Float32[1 2; 3 4]
+    end
 end

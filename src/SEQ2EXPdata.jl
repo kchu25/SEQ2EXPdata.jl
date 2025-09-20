@@ -33,19 +33,26 @@ struct SEQ2EXP_Dataset{T <: Real}
         strings::Vector{String}, 
         labels::Union{Vector{T}, Matrix{T}}, 
         feature_names::Union{Vector{String}, Nothing}=nothing;
-        GET_CONSENSUS=false
+        GET_CONSENSUS=false,
+        type::Type{<:Real}=T
         ) where T
 
+        # Convert labels to the specified type if different from T
+        if type != T
+            converted_labels = labels isa Vector ? Vector{type}(labels) : Matrix{type}(labels)
+        else
+            converted_labels = labels
+        end
+
         check_all_strings_same_length(strings) || throw(ArgumentError("All strings must be of the same length."))
-        check_equal_strings_and_labels(strings, labels) || 
+        check_equal_strings_and_labels(strings, converted_labels) || 
             throw(ArgumentError("Number of strings must match number of labels."))
-        check_feature_names_length(labels, feature_names)
+        check_feature_names_length(converted_labels, feature_names)
 
         consensus = GET_CONSENSUS ? get_consensus(strings) : nothing
-        new{T}(strings, labels, feature_names, consensus)
+        new{type}(strings, converted_labels, feature_names, consensus)
     end
 end
-
 
 """
     @seq2exp sequences labels [feature_names] [GET_CONSENSUS=false]
