@@ -48,6 +48,7 @@ function Base.show(io::IO, dataset::OnehotSEQ2EXP_Dataset)
     # Show label info if available
     if hasproperty(dataset.raw_data, :labels)
         labels = dataset.raw_data.labels
+        println(io, "Label array shape: ", size(labels))
         if isa(labels, Matrix)
             num_features, num_sequences = size(labels)
             println(io, "Labels: $num_features features for $num_sequences data points")
