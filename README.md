@@ -98,4 +98,28 @@ nfeatures = get_feature_counts(ds2)  # 1 for vector labels, number of rows for m
 
 Check out the [documentation](https://kchu25.github.io/SEQ2EXPdata.jl/dev/) for details on all the features.
 
+## One-hot Encoding Example
+
+You can convert a `SEQ2EXP_Dataset` to a one-hot encoded dataset for machine learning workflows:
+
+```julia
+using SEQ2EXPdata
+# ... create your SEQ2EXP_Dataset as above ...
+seqs = ["ATCG", "GGTA"]
+labels = [1.0, 2.0]
+ds = SEQ2EXP_Dataset(seqs, labels)
+
+ods = OnehotSEQ2EXP_Dataset(ds)
+# ods.onehot_sequences is a 4D tensor (channels × length × 1 × N)
+# ods.raw_data is the original dataset
+
+# Show the one-hot encoded dataset
+ds2 = OnehotSEQ2EXP_Dataset(ds)
+ds2 |> show
+# Output: OnehotSEQ2EXP_Dataset with 2 sequences of length 4
+#         One-hot tensor shape: (4, 4, 1, 2)
+#         Labels: 1 feature for 2 data points
+#         No feature names provided.
+```
+
 

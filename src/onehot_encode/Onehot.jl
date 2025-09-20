@@ -1,5 +1,22 @@
 include("encode.jl")
 
+"""
+    OnehotSEQ2EXP_Dataset{T}(raw_data::SEQ2EXP_Dataset{T})
+
+A container for a sequence-expression dataset and its one-hot encoded representation.
+
+# Fields
+- `raw_data::SEQ2EXP_Dataset{T}`: The original dataset with sequences and labels.
+- `onehot_sequences::AbstractArray{T, 4}`: The one-hot encoded tensor of the sequences (channels × length × 1 × N).
+
+# Example
+```julia
+seqs = ["ATCG", "GGTA"]
+labels = [1.0, 2.0]
+ds = SEQ2EXP_Dataset(seqs, labels)
+ods = OnehotSEQ2EXP_Dataset(ds)
+```
+"""
 struct OnehotSEQ2EXP_Dataset{T}
     raw_data::SEQ2EXP_Dataset
     onehot_sequences::AbstractArray{T, 4}
