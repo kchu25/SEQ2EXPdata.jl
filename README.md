@@ -98,7 +98,7 @@ nfeatures = get_feature_counts(ds2)  # 1 for vector labels, number of rows for m
 
 Check out the [documentation](https://kchu25.github.io/SEQ2EXPdata.jl/dev/) for details on all the features.
 
-## One-hot Encoding Example
+## One-hot Encoding
 
 You can convert a `SEQ2EXP_Dataset` to a one-hot encoded dataset for machine learning workflows:
 
