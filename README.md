@@ -41,8 +41,8 @@ ds2 = SEQ2EXP_Dataset(
 
 # The dataset displays nicely when shown
 ds2 |> show
-# Output: SEQ2EXP_Dataset with 2 sequences of length 4
-#         Labels: Matrix of size (2, 2)
+# Output: SEQ2EXP_Dataset with 3 sequences of length 4
+#         Labels: 2 features for 3 data points
 #         Feature names provided with length 2
 
 # You can also create datasets with consensus sequences
