@@ -72,7 +72,7 @@ ds3 = @seq2exp ["ATCG", "ATCA"] [1.0, 2.0] nothing GET_CONSENSUS=true
 """
 macro seq2exp(sequences, labels, feature_names=nothing, options...)
     # Parse keyword arguments
-    kwargs = []
+    kwargs = Expr[]
     for opt in options
         if isa(opt, Expr) && opt.head == :(=) && opt.args[1] == :GET_CONSENSUS
             push!(kwargs, Expr(:kw, :GET_CONSENSUS, esc(opt.args[2])))
