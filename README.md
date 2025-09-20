@@ -21,14 +21,14 @@ Here's how you might use SEQ2EXPdata in your own project:
 ```julia
 using SEQ2EXPdata
 
-""" Simple example: mapping DNA sequences to their expression values.
+""" Scalar-valued example: mapping DNA sequences to their expression values.
 Each sequence has one corresponding numerical label:
 - DNA sequence "ATCG" maps to expression value 1.2
 - DNA sequence "GGTA" maps to expression value 3.4
 """
 ds = SEQ2EXP_Dataset(["ATCG", "GGTA"], [1.2, 3.4])
 
-""" Example with named features for each sequence
+""" Vector-valued example with named features for each sequence
 "ATCG" has exp1=1.2 and exp2=3.4
 "GGTA" has exp1=2.3 and exp2=4.5  
 "CCAC" has exp1=4.1 and exp2=1.2 """
