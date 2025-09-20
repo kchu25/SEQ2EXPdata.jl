@@ -117,7 +117,7 @@ using Test
         @test get_feature_counts(ds) == 1
 
         # With feature names and matrix labels
-        labels2 = [1.0 2.0 3.0; 4.0 5.0 6.0]
+        labels2 = [1.0 2.0; 4.0 5.0]
         ds2 = SEQ2EXP_Dataset(["ATCG", "GGTA"], labels2, ["exp1", "exp2"])
         @test get_feature_names(ds2) == ["exp1", "exp2"]
         @test get_feature_counts(ds2) == 2
