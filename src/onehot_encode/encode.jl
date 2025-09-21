@@ -55,7 +55,6 @@ const AMINO_ACID_TO_INDEX = Dict(
     for (index, amino_acid) in enumerate(AMINO_ACID_LETTERS)
 )
 
-
 # Helper function to validate sequence lengths
 function validate_sequence_lengths(sequences::AbstractVector{String})
     sequence_lengths = length.(sequences)

@@ -40,13 +40,13 @@ dataset = SEQ2EXP_Dataset(sequences, expression_levels)
 ```julia
 # Multiple measurements per sequence
 sequences = ["ATCG", "GGTA", "CCAC"]
-measurements = [1.2 2.3 4.1;    # free energies
+measurements = [1.2 2.3 4.1;    # expression levels
                 3.4 4.5 1.2]    # binding affinities
 
 dataset = SEQ2EXP_Dataset(
     sequences, 
     measurements,
-    feature_names=["free energy", "binding_affinity"]
+    feature_names=["expression", "binding_affinity"]
 )
 
 # Display dataset info
@@ -92,8 +92,9 @@ sequences, labels = get_sequence_and_labels(dataset)
 # Get metadata
 feature_names = get_feature_names(dataset)      # Vector{String} or nothing
 sequence_length = get_sequence_length(dataset)  # Integer
-num_features = get_feature_counts(dataset)      # Number of labels for each sequence
+num_features = get_feature_counts(dataset)      # Number of label dimensions
 ```
+
 ## Machine Learning Integration
 
 ### One-Hot Encoding
@@ -152,11 +153,11 @@ dataloader = Flux.DataLoader(
 
 ## Use Cases
 
-- **Mutagenesis studies**: Track sequence variants and their functional measurements
-- **Protein engineering**: Store designed sequences with experimental validation data  
-- **Gene expression**: Associate promoter sequences with transcription levels
-- **Binding studies**: Link DNA/RNA sequences to protein binding affinities
-- **ML training**: Prepare sequence-function datasets for deep learning models
+- **🧪 Mutagenesis studies**: Track sequence variants and their functional measurements
+- **🔬 Protein engineering**: Store designed sequences with experimental validation data  
+- **📈 Gene expression**: Associate promoter sequences with transcription levels
+- **🧬 Binding studies**: Link DNA/RNA sequences to protein binding affinities
+- **🤖 ML training**: Prepare sequence-function datasets for deep learning models
 
 ## API Reference
 
@@ -172,7 +173,7 @@ dataloader = Flux.DataLoader(
 - `get_sequence_and_labels(dataset)` - Extract data as tuple
 - `get_feature_names(dataset)` - Get feature labels
 - `get_sequence_length(dataset)` - Sequence length
-- `get_feature_counts(dataset)` - Number of labels for each sequence
+- `get_feature_counts(dataset)` - Number of label dimensions
 - `has_consensus(dataset)` - Check if consensus exists
 - `get_consensus(dataset)` - Retrieve consensus sequence
 
