@@ -135,8 +135,8 @@ Y = get_Y(onehot_dataset)
 X, Y = get_XY(onehot_dataset)
 
 # Get dimensions
-get_feature_dimension(onehot_dataset) # equal to `get_sequence_length`
-get_label_dimension(onehot_dataset) # equal to `get_feature_counts`
+get_feature_dimension(onehot_dataset) # The shape of each encoded string
+get_label_dimension(onehot_dataset) # Equal to `get_feature_counts`
 ```
 
 ### Integration with ML Frameworks
