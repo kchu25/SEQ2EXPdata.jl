@@ -133,11 +133,11 @@ dataloader = Flux.DataLoader(
 
 ## Use Cases
 
-- **🧪 Mutagenesis studies**: Track sequence variants and their functional measurements
-- **🔬 Protein engineering**: Store designed sequences with experimental validation data  
-- **📈 Gene expression**: Associate promoter sequences with transcription levels
-- **🧬 Binding studies**: Link DNA/RNA sequences to protein binding affinities
-- **🤖 ML training**: Prepare sequence-function datasets for deep learning models
+- **Mutagenesis studies**: Track sequence variants and their functional measurements
+- **Protein engineering**: Store designed sequences with experimental validation data  
+- **Gene expression**: Associate promoter sequences with transcription levels
+- **Binding studies**: Link DNA/RNA sequences to protein binding affinities
+- **ML training**: Prepare sequence-function datasets for deep learning models
 
 ## API Reference
 
