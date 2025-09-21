@@ -45,10 +45,10 @@ jobs:
           ls -lh lcov.info || echo "No coverage file found"
           head -n 20 lcov.info || echo "File empty"
 
-      - uses: codecov/codecov-action@v4
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
         with:
-          files: lcov.info
-          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
   docs:
     name: Documentation
     runs-on: ubuntu-latest
