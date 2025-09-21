@@ -40,9 +40,10 @@ get_Y(dataset::OnehotSEQ2EXP_Dataset) = dataset.raw_data.labels
 get_XY(dataset::OnehotSEQ2EXP_Dataset) = (get_X(dataset), get_Y(dataset))
 
 # Dimensions
-get_feature_dimension(dataset::OnehotSEQ2EXP_Dataset) = 
+get_X_dim(dataset::OnehotSEQ2EXP_Dataset) = 
     (size(dataset.onehot_sequences, 1), size(dataset.onehot_sequences, 2))
-get_label_dimension(dataset::OnehotSEQ2EXP_Dataset) = size(dataset.raw_data.labels, 1)
+get_Y_dim(dataset::OnehotSEQ2EXP_Dataset) = 
+    ndims(get_Y(dataset)) == 1 ? 1 : size(dataset.raw_data.labels, 1)
 
 """
     Base.show(io::IO, dataset::OnehotSEQ2EXP_Dataset)
