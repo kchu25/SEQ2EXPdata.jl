@@ -42,13 +42,13 @@ dataset = SEQ2EXP_Dataset(sequences, expression_levels)
 ```julia
 # Multiple measurements per sequence
 sequences = ["ATCG", "GGTA", "CCAC"]
-measurements = [1.2 2.3 4.1;    # expression levels
+measurements = [1.2 2.3 4.1;    # free energies
                 3.4 4.5 1.2]    # binding affinities
 
 dataset = SEQ2EXP_Dataset(
     sequences, 
     measurements,
-    feature_names=["expression", "binding_affinity"]
+    feature_names=["free energy", "binding_affinity"]
 )
 
 # Display dataset info
