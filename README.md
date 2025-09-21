@@ -126,8 +126,12 @@ Channel 4: 0  1  0  0  (T/U)
 
 ```julia
 # Access the data
-X = onehot_dataset.onehot_sequences  # Input tensor for your model
-y = onehot_dataset.raw_data.labels   # Target values
+X = get_onehot_sequences(onehot_dataset)  # Input tensor for your model
+Y = get_labels(onehot_dataset)            # Target values
+
+# Or
+X = get_X(onehot_dataset)
+Y = get_Y(onehot_dataset)
 
 # Check dimensions
 size(X)  # (4, 4, 1, 2) for DNA: 4 channels, length 4, batch=1, 2 sequences

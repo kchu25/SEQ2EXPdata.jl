@@ -29,8 +29,14 @@ struct OnehotSEQ2EXP_Dataset{T}
     end
 end
 
+# Accessors
+get_onehot(dataset::OnehotSEQ2EXP_Dataset) = dataset.onehot_sequences
 get_label(dataset::OnehotSEQ2EXP_Dataset) = dataset.raw_data.labels
 get_label_names(dataset::OnehotSEQ2EXP_Dataset) = dataset.raw_data.feature_names
+
+# Convenient accessors for features (X) and labels (Y)
+get_X(dataset::OnehotSEQ2EXP_Dataset) = dataset.onehot_sequences
+get_Y(dataset::OnehotSEQ2EXP_Dataset) = dataset.raw_data.labels
 
 """
     Base.show(io::IO, dataset::OnehotSEQ2EXP_Dataset)
