@@ -107,7 +107,9 @@ export SEQ2EXP_Dataset,
        get_feature_names, 
        get_sequence_length, 
        get_feature_counts,
-       OnehotSEQ2EXP_Dataset
+       OnehotSEQ2EXP_Dataset,
+       get_feature_dimension,
+       get_label_dimension
 
 
 end
