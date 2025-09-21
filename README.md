@@ -7,7 +7,14 @@
 
 **Structured biological sequence data with associated numerical measurements.**
 
-A Julia package for organizing DNA, RNA, or protein sequences alongside their quantitative labels (expression levels, binding affinities, fitness scores, etc.) in a consistent, analysis-ready format.
+SEQ2EXPdata is a Julia package for organizing biological sequence data with their associated numerical labels (e.g., expression levels, binding affinities, or other measurements). It works with DNA, RNA, or protein sequences and ensures your data stays consistent and analysis-ready.
+
+## What does it do?
+
+- Stores your sequences and their expression labels together, so you don't have to juggle multiple arrays.
+- Makes sure your data is consistent (all sequences the same length, labels match up, etc.).
+- Lets you add feature names for your labels if you want.
+- Optionally computes consensus sequences from your sequence data; useful when e.g. the dataset is a mutagenesis study.
 
 ## Installation
 
@@ -15,15 +22,6 @@ A Julia package for organizing DNA, RNA, or protein sequences alongside their qu
 using Pkg
 Pkg.add("SEQ2EXPdata")
 ```
-
-## Key Features
-
-- **Multi-sequence support**: Handle DNA, RNA, or protein sequences
-- **Flexible labels**: Single values or multi-dimensional measurements per sequence  
-- **Named features**: Optional descriptive names for label dimensions
-- **Consensus sequences**: Automatic computation from sequence collections
-- **One-hot encoding**: Built-in conversion for ML workflows
-- **Data validation**: Ensures sequence length consistency and label alignment
 
 ## Quick Start
 
@@ -42,13 +40,13 @@ dataset = SEQ2EXP_Dataset(sequences, expression_levels)
 ```julia
 # Multiple measurements per sequence
 sequences = ["ATCG", "GGTA", "CCAC"]
-measurements = [1.2 2.3 4.1;    # free energies
+measurements = [1.2 2.3 4.1;    # expression levels
                 3.4 4.5 1.2]    # binding affinities
 
 dataset = SEQ2EXP_Dataset(
     sequences, 
     measurements,
-    feature_names=["free energy", "binding_affinity"]
+    feature_names=["expression", "binding_affinity"]
 )
 
 # Display dataset info
@@ -135,11 +133,11 @@ dataloader = Flux.DataLoader(
 
 ## Use Cases
 
-- **Mutagenesis studies**: Track sequence variants and their functional measurements
-- **Protein engineering**: Store designed sequences with experimental validation data  
-- **Gene expression**: Associate promoter sequences with transcription levels
-- **Binding studies**: Link DNA/RNA sequences to protein binding affinities
-- **ML training**: Prepare sequence-function datasets for deep learning models
+- **🧪 Mutagenesis studies**: Track sequence variants and their functional measurements
+- **🔬 Protein engineering**: Store designed sequences with experimental validation data  
+- **📈 Gene expression**: Associate promoter sequences with transcription levels
+- **🧬 Binding studies**: Link DNA/RNA sequences to protein binding affinities
+- **🤖 ML training**: Prepare sequence-function datasets for deep learning models
 
 ## API Reference
 
