@@ -37,6 +37,8 @@ get_label_names(dataset::OnehotSEQ2EXP_Dataset) = dataset.raw_data.feature_names
 # Convenient accessors for features (X) and labels (Y)
 get_X(dataset::OnehotSEQ2EXP_Dataset) = dataset.onehot_sequences
 get_Y(dataset::OnehotSEQ2EXP_Dataset) = dataset.raw_data.labels
+get_XY(dataset::OnehotSEQ2EXP_Dataset) = (get_X(dataset), get_Y(dataset))
+
 
 """
     Base.show(io::IO, dataset::OnehotSEQ2EXP_Dataset)
