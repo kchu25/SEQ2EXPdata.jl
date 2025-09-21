@@ -92,7 +92,7 @@ sequences, labels = get_sequence_and_labels(dataset)
 # Get metadata
 feature_names = get_feature_names(dataset)      # Vector{String} or nothing
 sequence_length = get_sequence_length(dataset)  # Integer
-num_features = get_feature_counts(dataset)      # Number of label dimensions
+num_features = get_feature_counts(dataset)      # Number of labels for each sequence
 ```
 
 ## Machine Learning Integration
@@ -153,7 +153,7 @@ dataloader = Flux.DataLoader(
 - `get_sequence_and_labels(dataset)` - Extract data as tuple
 - `get_feature_names(dataset)` - Get feature labels
 - `get_sequence_length(dataset)` - Sequence length
-- `get_feature_counts(dataset)` - Number of label dimensions
+- `get_feature_counts(dataset)` - Number of labels for each sequence
 - `has_consensus(dataset)` - Check if consensus exists
 - `get_consensus(dataset)` - Retrieve consensus sequence
 
