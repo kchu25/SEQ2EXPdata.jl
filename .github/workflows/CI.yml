@@ -39,6 +39,12 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
       - uses: julia-actions/julia-processcoverage@v1
+      
+      - name: Check coverage file
+        run: |
+          ls -lh lcov.info || echo "No coverage file found"
+          head -n 20 lcov.info || echo "File empty"
+
       - uses: codecov/codecov-action@v4
         with:
           files: lcov.info
