@@ -111,9 +111,9 @@ onehot_dataset = OnehotSEQ2EXP_Dataset(dataset)
 ```
 
 **Encoding scheme:**
-- **DNA/RNA**: A→1, C→2, G→3, T/U→4 (4 channels)
-- **Proteins**: Standard 20 amino acids A-Y (20 channels, alphabetical order)
-- **Output**: 4D tensor `(channels × sequence_length × 1 × num_sequences)`
+- **DNA/RNA**: 4 (A, C, G, T/U)
+- **Proteins**: 20 (standard amino acids, alphabetical order)
+- **Output**: 4D tensor `(number_of_alphabets × sequence_length × 1 × num_sequences)`
 
 **Visual example for DNA sequence "ATCG":**
 ```
