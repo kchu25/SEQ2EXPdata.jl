@@ -164,11 +164,11 @@ using Flux
 sequences = ["ATCG", "GGCG", "TTAG"]
 labels = [1.2, 2.3, 3.1]
 dataset = SEQ2EXP_Dataset(sequences, labels)
-onehot_data = OnehotSEQ2EXP_Dataset(dataset)
+onehot_dataset = OnehotSEQ2EXP_Dataset(dataset)
 
 # Use in Flux DataLoader
 dataloader = Flux.DataLoader(
-    (data=onehot_data.onehot_sequences, label=onehot_data.raw_data.labels),
+    get_XY(onehot_dataset),
     batchsize=32
 )
 ```
