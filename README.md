@@ -36,9 +36,10 @@ expression_levels = [1.2, 3.4, 2.1]
 dataset = SEQ2EXP_Dataset(sequences, expression_levels)
 ```
 
-### Multi-Target Measurements  (columns = responses/labels for each sequence)
+### Multi-Target Measurements 
 ```julia
 # Multiple measurements per sequence
+# columns = responses/labels for each sequence
 sequences = ["ATCG", "GGTA", "CCAC"]
 measurements = [1.2 2.3 4.1;    # free energies
                 3.4 4.5 1.2]    # binding affinities
