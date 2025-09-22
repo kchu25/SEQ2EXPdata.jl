@@ -127,10 +127,10 @@ Channel 4: 0  1  0  0  (T/U)
 
 ```julia
 # Access the data
-X = get_onehot_sequences(onehot_dataset)  # Input tensor for your model
-Y = get_labels(onehot_dataset)            # Target values
+onehot_dataset.X   # Input tensor for your model (virtual field)
+onehot_dataset.Y   # Target values (virtual field)
 
-# Or
+# Or, use accessors
 X = get_X(onehot_dataset)
 Y = get_Y(onehot_dataset)
 X, Y = get_XY(onehot_dataset)
