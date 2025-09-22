@@ -21,6 +21,8 @@ struct OnehotSEQ2EXP_Dataset{T}
     raw_data::SEQ2EXP_Dataset
     onehot_sequences::AbstractArray{T, 4}
     prefix_offset::Int # For trimming, if needed
+    X_dim::Tuple{Int, Int}  # (number of alphabets, length)
+    Y_dim::Int # Number of label features
     
     # Constructor that infers T from raw_data's type parameter
     function OnehotSEQ2EXP_Dataset(raw_data::SEQ2EXP_Dataset{T}; trim=true) where {T<:AbstractFloat}
@@ -31,7 +33,10 @@ struct OnehotSEQ2EXP_Dataset{T}
         end
 
         onehot_sequences = sequences_to_tensor_auto(strs2encode; T=T)
-        new{T}(raw_data, onehot_sequences, prefix_offset)
+        X_dim = (size(onehot_sequences, 1), size(onehot_sequences, 2))
+        Y_dim = ndims(raw_data.labels) == 1 ? 1 : size(raw_data.labels, 1)
+
+        new{T}(raw_data, onehot_sequences, prefix_offset, X_dim, Y_dim)
     end
 end
 
@@ -46,10 +51,8 @@ get_Y(dataset::OnehotSEQ2EXP_Dataset) = dataset.raw_data.labels
 get_XY(dataset::OnehotSEQ2EXP_Dataset) = (get_X(dataset), get_Y(dataset))
 
 # Dimensions
-get_X_dim(dataset::OnehotSEQ2EXP_Dataset) = 
-    (size(dataset.onehot_sequences, 1), size(dataset.onehot_sequences, 2))
-get_Y_dim(dataset::OnehotSEQ2EXP_Dataset) = 
-    ndims(get_Y(dataset)) == 1 ? 1 : size(dataset.raw_data.labels, 1)
+get_X_dim(dataset::OnehotSEQ2EXP_Dataset) = dataset.X_dim
+get_Y_dim(dataset::OnehotSEQ2EXP_Dataset) = dataset.Y_dim
 
 # Prefix offset
 get_prefix_offset(dataset::OnehotSEQ2EXP_Dataset) = dataset.prefix_offset
