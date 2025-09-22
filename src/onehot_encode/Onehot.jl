@@ -40,6 +40,28 @@ struct OnehotSEQ2EXP_Dataset{T}
     end
 end
 
+
+"""
+    Base.getproperty(dataset::OnehotSEQ2EXP_Dataset, sym::Symbol)
+
+Allow dot-access to `X` and `Y` as virtual fields for a `OnehotSEQ2EXP_Dataset`.
+
+- `ods.X` returns the one-hot encoded tensor (same as `ods.onehot_sequences`).
+- `ods.Y` returns the label array (same as `ods.raw_data.labels`).
+- All other fields are accessed as usual.
+
+This enables convenient and familiar ML-style access to features and labels without storing redundant fields.
+"""
+function Base.getproperty(dataset::OnehotSEQ2EXP_Dataset, sym::Symbol)
+    if sym === :X
+        return dataset.onehot_sequences
+    elseif sym === :Y
+        return dataset.raw_data.labels
+    else
+        return getfield(dataset, sym)
+    end
+end
+
 # Accessors
 get_onehot(dataset::OnehotSEQ2EXP_Dataset) = dataset.onehot_sequences
 get_label(dataset::OnehotSEQ2EXP_Dataset) = dataset.raw_data.labels

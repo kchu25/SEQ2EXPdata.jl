@@ -140,3 +140,12 @@ end
     @test sum(tensor[:,3,1,1]) == 1
     @test sum(tensor[:,4,1,1]) == 1
 end
+
+@testset "OnehotSEQ2EXP_Dataset getproperty X/Y" begin
+    seqs = ["ATCG", "GGTA"]
+    labels = [1.0, 2.0]
+    ds = SEQ2EXP_Dataset(seqs, labels)
+    ods = OnehotSEQ2EXP_Dataset(ds)
+    @test ods.X === ods.onehot_sequences
+    @test ods.Y === ds.labels
+end
