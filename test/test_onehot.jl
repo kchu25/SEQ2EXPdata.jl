@@ -57,3 +57,86 @@ end
     @test get_Y_dim(ods2) == 2
     @test get_XY(ods2) == (ods2.onehot_sequences, ds2.labels)
 end
+
+@testset "OnehotSEQ2EXP_Dataset trimming" begin
+    # Sequences with common prefix and suffix
+    seqs = ["AAATCGGG", "AAAGGTGG", "AAACCCGG"]
+    labels = [1.0, 2.0, 3.0]
+    ds = SEQ2EXP_Dataset(seqs, labels)
+
+    # With trimming (default)
+    ods_trim = OnehotSEQ2EXP_Dataset(ds)  # trim=true by default
+    # Without trimming
+    ods_no_trim = OnehotSEQ2EXP_Dataset(ds; trim=false)
+
+    # The trimmed onehot tensor should have a shorter sequence length
+    len_trim = size(ods_trim.onehot_sequences, 2)
+    len_no_trim = size(ods_no_trim.onehot_sequences, 2)
+    @test len_trim < len_no_trim
+    @test ods_trim.prefix_offset > 0
+    @test ods_no_trim.prefix_offset == 0
+
+    # The number of sequences should be unchanged
+    @test size(ods_trim.onehot_sequences, 4) == size(ods_no_trim.onehot_sequences, 4)
+end
+
+@testset "OnehotSEQ2EXP_Dataset prefix_offset" begin
+    seqs = ["AAATCGGG", "AAAGGTGG", "AAACCCGG"]
+    labels = [1.0, 2.0, 3.0]
+    ds = SEQ2EXP_Dataset(seqs, labels)
+    ods_trim = OnehotSEQ2EXP_Dataset(ds)  # trim=true by default
+    # The common prefix is 'AAA', so prefix_offset should be 3
+    @test ods_trim.prefix_offset == 3
+    # The trimmed sequence should be of length 3 (original 8 - (3 + 2) (prefix + suffix))
+    @test size(ods_trim.onehot_sequences, 2) == 3
+end
+
+@testset "get_prefix_offset accessor" begin
+    seqs = ["AAATCGGG", "AAAGGTGG", "AAACCCGG"]
+    labels = [1.0, 2.0, 3.0]
+    ds = SEQ2EXP_Dataset(seqs, labels)
+    ods_trim = OnehotSEQ2EXP_Dataset(ds)  # trim=true by default
+    ods_no_trim = OnehotSEQ2EXP_Dataset(ds; trim=false)
+    @test get_prefix_offset(ods_trim) == 3  # 'AAA' is the common prefix
+    @test get_prefix_offset(ods_no_trim) == 0
+end
+
+@testset "sequences_to_tensor DNA encoding" begin
+    seqs = ["ATCG", "GGTA", "TTAA"]
+    tensor = SEQ2EXPdata.sequences_to_tensor(seqs, SEQ2EXPdata.Nucleotide)
+    @test size(tensor) == (4, 4, 1, 3)
+    @test eltype(tensor) == Float32 || eltype(tensor) == Float64
+    # Check one-hot for first sequence
+    @test tensor[1,1,1,1] == 1  # A at pos 1
+    @test tensor[4,2,1,1] == 1  # T at pos 2
+    @test tensor[2,3,1,1] == 1  # C at pos 3
+    @test tensor[3,4,1,1] == 1  # G at pos 4
+    # All other positions should be zero
+    @test sum(tensor[:,1,1,1]) == 1
+    @test sum(tensor[:,2,1,1]) == 1
+    @test sum(tensor[:,3,1,1]) == 1
+    @test sum(tensor[:,4,1,1]) == 1
+end
+
+@testset "sequences_to_tensor unknown base" begin
+    seqs = ["ATNG"]
+    tensor = SEQ2EXPdata.sequences_to_tensor(seqs, SEQ2EXPdata.Nucleotide)
+    # N should be all zeros at pos 3
+    @test all(tensor[:,3,1,1] .== 0)
+end
+
+@testset "sequences_to_tensor protein encoding" begin
+    seqs = ["ACDE", "FGHI"]
+    tensor = SEQ2EXPdata.sequences_to_tensor(seqs, SEQ2EXPdata.AminoAcid)
+    @test size(tensor) == (20, 4, 1, 2)
+    # Check one-hot for first sequence
+    @test tensor[1,1,1,1] == 1  # A at pos 1
+    @test tensor[2,2,1,1] == 1  # C at pos 2
+    @test tensor[3,3,1,1] == 1  # D at pos 3
+    @test tensor[4,4,1,1] == 1  # E at pos 4
+    # All other positions should be zero for first sequence
+    @test sum(tensor[:,1,1,1]) == 1
+    @test sum(tensor[:,2,1,1]) == 1
+    @test sum(tensor[:,3,1,1]) == 1
+    @test sum(tensor[:,4,1,1]) == 1
+end
