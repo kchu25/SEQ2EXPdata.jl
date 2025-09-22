@@ -90,3 +90,43 @@ end
     # The trimmed sequence should be of length 3 (original 8 - (3 + 2) (prefix + suffix))
     @test size(ods_trim.onehot_sequences, 2) == 3
 end
+
+@testset "sequences_to_tensor DNA encoding" begin
+    seqs = ["ATCG", "GGTA", "TTAA"]
+    tensor = SEQ2EXPdata.sequences_to_tensor(seqs, SEQ2EXPdata.Nucleotide)
+    @test size(tensor) == (4, 4, 1, 3)
+    @test eltype(tensor) == Float32 || eltype(tensor) == Float64
+    # Check one-hot for first sequence
+    @test tensor[1,1,1,1] == 1  # A at pos 1
+    @test tensor[4,2,1,1] == 1  # T at pos 2
+    @test tensor[2,3,1,1] == 1  # C at pos 3
+    @test tensor[3,4,1,1] == 1  # G at pos 4
+    # All other positions should be zero
+    @test sum(tensor[:,1,1,1]) == 1
+    @test sum(tensor[:,2,1,1]) == 1
+    @test sum(tensor[:,3,1,1]) == 1
+    @test sum(tensor[:,4,1,1]) == 1
+end
+
+@testset "sequences_to_tensor unknown base" begin
+    seqs = ["ATNG"]
+    tensor = SEQ2EXPdata.sequences_to_tensor(seqs, SEQ2EXPdata.Nucleotide)
+    # N should be all zeros at pos 3
+    @test all(tensor[:,3,1,1] .== 0)
+end
+
+@testset "sequences_to_tensor protein encoding" begin
+    seqs = ["ACDE", "FGHI"]
+    tensor = SEQ2EXPdata.sequences_to_tensor(seqs, SEQ2EXPdata.AminoAcid)
+    @test size(tensor) == (20, 4, 1, 2)
+    # Check one-hot for first sequence
+    @test tensor[1,1,1,1] == 1  # A at pos 1
+    @test tensor[2,2,1,1] == 1  # C at pos 2
+    @test tensor[3,3,1,1] == 1  # D at pos 3
+    @test tensor[4,4,1,1] == 1  # E at pos 4
+    # All other positions should be zero for first sequence
+    @test sum(tensor[:,1,1,1]) == 1
+    @test sum(tensor[:,2,1,1]) == 1
+    @test sum(tensor[:,3,1,1]) == 1
+    @test sum(tensor[:,4,1,1]) == 1
+end
