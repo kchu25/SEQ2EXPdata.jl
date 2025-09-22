@@ -19,7 +19,7 @@ ods = OnehotSEQ2EXP_Dataset(ds)
 """
 struct OnehotSEQ2EXP_Dataset{T}
     raw_data::SEQ2EXP_Dataset
-    onehot_sequences::AbstractArray{T, 4}
+    onehot_sequences::AbstractArray{T, 4} # TODO: use BitMatrix?
     prefix_offset::Int # For trimming, if needed
     X_dim::Tuple{Int, Int}  # (number of alphabets, length)
     Y_dim::Int # Number of label features
