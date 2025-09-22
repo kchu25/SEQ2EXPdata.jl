@@ -17,7 +17,8 @@ function check_feature_names_length(labels::Union{Vector{T}, Matrix{T}}, feature
         if isa(labels, Matrix)
             @assert size(labels, 1) == length(feature_names) "Feature names length must match the number of rows in labels."
         elseif isa(labels, Vector)
-            @assert length(labels) == length(feature_names) "Feature names length must match the length of labels."
+            @info "length of feature_names $(length(feature_names))"
+            @assert length(feature_names) == 1 "Feature names length must be 1."
         end
     end
 end

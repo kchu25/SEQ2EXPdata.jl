@@ -47,7 +47,9 @@ struct SEQ2EXP_Dataset{T <: Real}
         check_all_strings_same_length(strings) || throw(ArgumentError("All strings must be of the same length."))
         check_equal_strings_and_labels(strings, converted_labels) || 
             throw(ArgumentError("Number of strings must match number of labels."))
-        check_feature_names_length(converted_labels, feature_names)
+        if !isnothing(feature_names)
+            check_feature_names_length(converted_labels, feature_names)
+        end
 
         consensus = GET_CONSENSUS ? get_consensus(strings) : nothing
         new{type}(strings, converted_labels, feature_names, consensus)
