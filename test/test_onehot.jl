@@ -91,6 +91,16 @@ end
     @test size(ods_trim.onehot_sequences, 2) == 3
 end
 
+@testset "get_prefix_offset accessor" begin
+    seqs = ["AAATCGGG", "AAAGGTGG", "AAACCCGG"]
+    labels = [1.0, 2.0, 3.0]
+    ds = SEQ2EXP_Dataset(seqs, labels)
+    ods_trim = OnehotSEQ2EXP_Dataset(ds)  # trim=true by default
+    ods_no_trim = OnehotSEQ2EXP_Dataset(ds; trim=false)
+    @test get_prefix_offset(ods_trim) == 3  # 'AAA' is the common prefix
+    @test get_prefix_offset(ods_no_trim) == 0
+end
+
 @testset "sequences_to_tensor DNA encoding" begin
     seqs = ["ATCG", "GGTA", "TTAA"]
     tensor = SEQ2EXPdata.sequences_to_tensor(seqs, SEQ2EXPdata.Nucleotide)
