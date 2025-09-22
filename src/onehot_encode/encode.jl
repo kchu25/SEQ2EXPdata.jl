@@ -153,8 +153,7 @@ function sequences_to_tensor(
 end
 
 # Convenience method with default nucleotide behavior for backward compatibility
-sequences_to_tensor(sequences::AbstractVector{String}; T = DEFAULT_FLOAT_TYPE) = 
-    sequences_to_tensor(sequences, Nucleotide; T = T)
+sequences_to_tensor(sequences::AbstractVector{String}; T = DEFAULT_FLOAT_TYPE) = sequences_to_tensor(sequences, Nucleotide; T = T)
 
 """
     sequences_to_tensor_auto(sequences::AbstractVector{String}; T=Float32)

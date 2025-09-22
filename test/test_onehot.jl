@@ -57,3 +57,36 @@ end
     @test get_Y_dim(ods2) == 2
     @test get_XY(ods2) == (ods2.onehot_sequences, ds2.labels)
 end
+
+@testset "OnehotSEQ2EXP_Dataset trimming" begin
+    # Sequences with common prefix and suffix
+    seqs = ["AAATCGGG", "AAAGGTGG", "AAACCCGG"]
+    labels = [1.0, 2.0, 3.0]
+    ds = SEQ2EXP_Dataset(seqs, labels)
+
+    # With trimming (default)
+    ods_trim = OnehotSEQ2EXP_Dataset(ds)  # trim=true by default
+    # Without trimming
+    ods_no_trim = OnehotSEQ2EXP_Dataset(ds; trim=false)
+
+    # The trimmed onehot tensor should have a shorter sequence length
+    len_trim = size(ods_trim.onehot_sequences, 2)
+    len_no_trim = size(ods_no_trim.onehot_sequences, 2)
+    @test len_trim < len_no_trim
+    @test ods_trim.prefix_offset > 0
+    @test ods_no_trim.prefix_offset == 0
+
+    # The number of sequences should be unchanged
+    @test size(ods_trim.onehot_sequences, 4) == size(ods_no_trim.onehot_sequences, 4)
+end
+
+@testset "OnehotSEQ2EXP_Dataset prefix_offset" begin
+    seqs = ["AAATCGGG", "AAAGGTGG", "AAACCCGG"]
+    labels = [1.0, 2.0, 3.0]
+    ds = SEQ2EXP_Dataset(seqs, labels)
+    ods_trim = OnehotSEQ2EXP_Dataset(ds)  # trim=true by default
+    # The common prefix is 'AAA', so prefix_offset should be 3
+    @test ods_trim.prefix_offset == 3
+    # The trimmed sequence should be of length 3 (original 8 - (3 + 2) (prefix + suffix))
+    @test size(ods_trim.onehot_sequences, 2) == 3
+end

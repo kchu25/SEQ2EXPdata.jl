@@ -1,5 +1,5 @@
 include("encode.jl")
-
+include("trim.jl")
 """
     OnehotSEQ2EXP_Dataset{T}(raw_data::SEQ2EXP_Dataset{T})
 
@@ -20,12 +20,18 @@ ods = OnehotSEQ2EXP_Dataset(ds)
 struct OnehotSEQ2EXP_Dataset{T}
     raw_data::SEQ2EXP_Dataset
     onehot_sequences::AbstractArray{T, 4}
+    prefix_offset::Int # For trimming, if needed
     
     # Constructor that infers T from raw_data's type parameter
-    function OnehotSEQ2EXP_Dataset(raw_data::SEQ2EXP_Dataset{T}) where {T<:AbstractFloat}
-        onehot_sequences = 
-            sequences_to_tensor_auto(raw_data.strings; T=T)
-        new{T}(raw_data, onehot_sequences)
+    function OnehotSEQ2EXP_Dataset(raw_data::SEQ2EXP_Dataset{T}; trim=true) where {T<:AbstractFloat}
+
+        prefix_offset, strs2encode = 0, raw_data.strings;
+        if trim
+            prefix_offset, strs2encode = trim_common_ends(strs2encode)
+        end
+
+        onehot_sequences = sequences_to_tensor_auto(strs2encode; T=T)
+        new{T}(raw_data, onehot_sequences, prefix_offset)
     end
 end
 
@@ -44,6 +50,9 @@ get_X_dim(dataset::OnehotSEQ2EXP_Dataset) =
     (size(dataset.onehot_sequences, 1), size(dataset.onehot_sequences, 2))
 get_Y_dim(dataset::OnehotSEQ2EXP_Dataset) = 
     ndims(get_Y(dataset)) == 1 ? 1 : size(dataset.raw_data.labels, 1)
+
+# Prefix offset
+get_prefix_offset(dataset::OnehotSEQ2EXP_Dataset) = dataset.prefix_offset
 
 """
     Base.show(io::IO, dataset::OnehotSEQ2EXP_Dataset)

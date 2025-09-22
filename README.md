@@ -139,6 +139,23 @@ get_X_dim(onehot_dataset) # The shape of each encoded string
 get_Y_dim(onehot_dataset) # Equal to `get_feature_counts`
 ```
 
+### Trimming Common Prefixes/Suffixes
+
+In mutagenesis studies, sequences often share a common prefix and/or suffix. The `OnehotSEQ2EXP_Dataset` constructor trims these by default, so only the variable region is one-hot encoded (while storing the prefix offset for reference):
+
+```julia
+seqs = ["AAATCGGG", "AAAGGTGG", "AAACCCGG"]  # Common prefix 'AAA', suffix 'GG'
+labels = [1.0, 2.0, 3.0]
+dataset = SEQ2EXP_Dataset(seqs, labels)
+
+onehot_dataset = OnehotSEQ2EXP_Dataset(dataset; trim=true)  # trim=true by default
+get_X_dim(onehot_dataset)  # (4, 3) -- only the variable region is encoded
+get_prefix_offset(onehot_dataset)  # 3 (number of trimmed prefix bases)
+```
+
+This makes downstream ML models focus on the mutagenized region, while still allowing you to recover the original sequence coordinates if needed.
+
+
 ### Integration with ML Frameworks
 ```julia
 using Flux
