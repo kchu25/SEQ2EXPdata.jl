@@ -28,13 +28,13 @@ struct SEQ2EXP_Dataset{T <: Real}
     labels::Union{Vector{T}, Matrix{T}}
     feature_names::Union{Vector{String}, Nothing}
     consensus::Union{String, Nothing}
-    most_common_length_indices::Union{Vector{Int}, Nothing}
+    most_common_length_indices::Union{Set{Int}, Nothing}
 
     function SEQ2EXP_Dataset(
         strings::Vector{String}, 
         labels::Union{Vector{T}, Matrix{T}}, 
         feature_names::Union{Vector{String}, Nothing}=nothing,
-        most_common_length_indices::Union{Vector{Int}, Nothing}=nothing;
+        most_common_length_indices::Union{Set{Int}, Nothing}=nothing;
         GET_CONSENSUS=false,
         # indices for strings of most common length, if input strings are of non uniform length
         type::Type{<:Real}=T
