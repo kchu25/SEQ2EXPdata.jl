@@ -35,8 +35,9 @@ using Test
     end
     
     @testset "Validation Tests" begin
-        # Test unequal string lengths
-        @test_throws ArgumentError SEQ2EXP_Dataset(["AT", "ATCG"], [1.0, 2.0])
+        # Test unequal string lengths - now automatically padded instead of throwing error
+        ds_varied_length = SEQ2EXP_Dataset(["AT", "ATCG"], [1.0, 2.0])
+        @test all(length.(ds_varied_length.strings) .== 4)  # All padded to max length
         
         # Test mismatched strings and labels count
         @test_throws ArgumentError SEQ2EXP_Dataset(["ATCG", "GGTA"], [1.0, 2.0, 3.0])
@@ -195,29 +196,21 @@ using Test
         @test ds_default.most_common_length_indices === nothing
 
         # Test with most_common_length_indices explicitly set to nothing
-        ds_explicit_nothing = SEQ2EXP_Dataset(strings, labels, nothing, nothing)
+        ds_explicit_nothing = SEQ2EXP_Dataset(strings, labels, nothing)
         @test ds_explicit_nothing.most_common_length_indices === nothing
 
-        # Test with most_common_length_indices set to specific indices
-        indices = Set([1, 3])  # Indices for first and third sequences
-        ds_with_indices = SEQ2EXP_Dataset(strings, labels, nothing, indices)
-        @test ds_with_indices.most_common_length_indices == Set([1, 3])
-
-        # Test with all indices
-        all_indices = Set([1, 2, 3])
-        ds_all_indices = SEQ2EXP_Dataset(strings, labels, nothing, all_indices)
-        @test ds_all_indices.most_common_length_indices == Set([1, 2, 3])
-
-        # Test with empty indices set
-        empty_indices = Set{Int}()
-        ds_empty_indices = SEQ2EXP_Dataset(strings, labels, nothing, empty_indices)
-        @test ds_empty_indices.most_common_length_indices == Set{Int}()
+        # Test with varying length strings - most_common_length_indices should be computed
+        strings_varied = ["AT", "ATCG", "GG", "CCCC", "AA"]
+        labels_varied = [1.0, 2.0, 3.0, 4.0, 5.0]
+        ds_varied = SEQ2EXP_Dataset(strings_varied, labels_varied; GET_CONSENSUS=true)
+        @test ds_varied.most_common_length_indices !== nothing
+        @test ds_varied.most_common_length_indices == Set([1, 3, 5])  # Indices of length 2 strings
 
         # Test that other fields are not affected
-        @test ds_with_indices.strings == strings
-        @test ds_with_indices.labels == labels
-        @test ds_with_indices.feature_names === nothing
-        @test ds_with_indices.consensus === nothing
+        @test length(ds_varied.strings) == 5
+        @test ds_varied.labels == labels_varied
+        @test ds_varied.feature_names === nothing
+        @test ds_varied.consensus !== nothing  # Consensus should be computed from most common length
     end
 
     include("test_onehot.jl")

@@ -7,6 +7,7 @@ Provides the `SEQ2EXP_Dataset` type and utility functions for validation and man
 """
 module SEQ2EXPdata
 
+include("helpers.jl")
 """
     SEQ2EXP_Dataset{T<:Real}(strings, labels; feature_names=nothing)
 
@@ -33,10 +34,8 @@ struct SEQ2EXP_Dataset{T <: Real}
     function SEQ2EXP_Dataset(
         strings::Vector{String}, 
         labels::Union{Vector{T}, Matrix{T}}, 
-        feature_names::Union{Vector{String}, Nothing}=nothing,
-        most_common_length_indices::Union{Set{Int}, Nothing}=nothing;
-        GET_CONSENSUS=false,
-        # indices for strings of most common length, if input strings are of non uniform length
+        feature_names::Union{Vector{String}, Nothing}=nothing;
+        GET_CONSENSUS::Bool=false,
         type::Type{<:Real}=T
         ) where T
 
@@ -47,14 +46,28 @@ struct SEQ2EXP_Dataset{T <: Real}
             converted_labels = labels
         end
 
-        check_all_strings_same_length(strings) || throw(ArgumentError("All strings must be of the same length."))
+        most_common_length_indices = nothing
+        consensus = nothing
+        
+        if !check_all_strings_same_length(strings)
+            @info "Strings are of varying lengths. Apply padding."
+            if GET_CONSENSUS
+                most_common_length_indices = get_most_common_length_indices(strings; verbose=true)
+                consensus = get_consensus(strings[collect(most_common_length_indices)])
+            end
+            strings = pad_sequences_to_maxlen(strings)
+        else
+            # All strings same length
+            if GET_CONSENSUS
+                consensus = get_consensus(strings)
+            end
+        end
+            
         check_equal_strings_and_labels(strings, converted_labels) || 
             throw(ArgumentError("Number of strings must match number of labels."))
         if !isnothing(feature_names)
             check_feature_names_length(converted_labels, feature_names)
         end
-
-        consensus = GET_CONSENSUS ? get_consensus(strings) : nothing
 
         new{type}(strings, converted_labels, feature_names, consensus, most_common_length_indices)
     end
