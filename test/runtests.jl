@@ -187,5 +187,38 @@ using Test
         @test ds_mat_f32.labels == Float32[1 2; 3 4]
     end
 
+    @testset "Most Common Length Indices Tests" begin
+        # Test with most_common_length_indices set to nothing (default)
+        strings = ["ATCG", "GGTA", "CCCC"]
+        labels = [1.0, 2.0, 3.0]
+        ds_default = SEQ2EXP_Dataset(strings, labels)
+        @test ds_default.most_common_length_indices === nothing
+
+        # Test with most_common_length_indices explicitly set to nothing
+        ds_explicit_nothing = SEQ2EXP_Dataset(strings, labels, nothing, nothing)
+        @test ds_explicit_nothing.most_common_length_indices === nothing
+
+        # Test with most_common_length_indices set to specific indices
+        indices = [1, 3]  # Indices for first and third sequences
+        ds_with_indices = SEQ2EXP_Dataset(strings, labels, nothing, indices)
+        @test ds_with_indices.most_common_length_indices == [1, 3]
+
+        # Test with all indices
+        all_indices = [1, 2, 3]
+        ds_all_indices = SEQ2EXP_Dataset(strings, labels, nothing, all_indices)
+        @test ds_all_indices.most_common_length_indices == [1, 2, 3]
+
+        # Test with empty indices vector
+        empty_indices = Int[]
+        ds_empty_indices = SEQ2EXP_Dataset(strings, labels, nothing, empty_indices)
+        @test ds_empty_indices.most_common_length_indices == Int[]
+
+        # Test that other fields are not affected
+        @test ds_with_indices.strings == strings
+        @test ds_with_indices.labels == labels
+        @test ds_with_indices.feature_names === nothing
+        @test ds_with_indices.consensus === nothing
+    end
+
     include("test_onehot.jl")
 end
