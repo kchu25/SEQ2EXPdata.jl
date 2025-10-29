@@ -1,5 +1,7 @@
 include("encode.jl")
 include("trim.jl")
+include("make_consensus.jl")
+
 """
     OnehotSEQ2EXP_Dataset{T}(raw_data::SEQ2EXP_Dataset{T})
 

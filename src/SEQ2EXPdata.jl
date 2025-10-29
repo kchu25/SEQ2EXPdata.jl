@@ -73,6 +73,9 @@ struct SEQ2EXP_Dataset{T <: Real}
     end
 end
 
+
+
+
 """
     @seq2exp sequences labels [feature_names] [GET_CONSENSUS=false]
 
@@ -128,7 +131,9 @@ export SEQ2EXP_Dataset,
        get_feature_counts,
        OnehotSEQ2EXP_Dataset,
        get_feature_dimension,
-       get_label_dimension
+       get_label_dimension,
+       consensus_to_bitmatrix,
+       consensus_to_bitmatrix_auto
 
 
 end

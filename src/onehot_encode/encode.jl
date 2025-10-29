@@ -4,6 +4,9 @@ struct Nucleotide end
 struct AminoAcid end
 const TYPE_MAP = Dict(:Nucleotide => Nucleotide, :AminoAcid => AminoAcid)
 
+# Valid nucleotides for strict consensus (no ambiguous bases like 'N')
+const VALID_NUCLEOTIDES = ['A', 'C', 'G', 'T', 'U']
+
 # Fast lookup using direct indexing - returns the index of the nucleotide (1-based)
 function get_nucleotide_index(nucleotide::Char)
     if nucleotide == 'A'

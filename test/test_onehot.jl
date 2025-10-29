@@ -149,3 +149,68 @@ end
     @test ods.X === ods.onehot_sequences
     @test ods.Y === ds.labels
 end
+
+@testset "consensus_to_bitmatrix nucleotide" begin
+    # Test basic nucleotide consensus
+    consensus = "ATCG"
+    bit_mat = SEQ2EXPdata.consensus_to_bitmatrix(consensus, SEQ2EXPdata.Nucleotide)
+    @test size(bit_mat) == (4, 4)
+    @test bit_mat isa BitMatrix
+    # Check one-hot encoding
+    @test bit_mat[1, 1] == true  # A at pos 1
+    @test bit_mat[4, 2] == true  # T at pos 2
+    @test bit_mat[2, 3] == true  # C at pos 3
+    @test bit_mat[3, 4] == true  # G at pos 4
+    # Check that each column has exactly one true
+    @test sum(bit_mat[:, 1]) == 1
+    @test sum(bit_mat[:, 2]) == 1
+    @test sum(bit_mat[:, 3]) == 1
+    @test sum(bit_mat[:, 4]) == 1
+    
+    # Test with U (RNA)
+    consensus_rna = "AUCG"
+    bit_mat_rna = SEQ2EXPdata.consensus_to_bitmatrix(consensus_rna, SEQ2EXPdata.Nucleotide)
+    @test bit_mat_rna[4, 2] == true  # U at pos 2 (same as T)
+    
+    # Test that N throws an error
+    @test_throws ArgumentError SEQ2EXPdata.consensus_to_bitmatrix("ATNG", SEQ2EXPdata.Nucleotide)
+    @test_throws ArgumentError SEQ2EXPdata.consensus_to_bitmatrix("AXCG", SEQ2EXPdata.Nucleotide)
+end
+
+@testset "consensus_to_bitmatrix amino acid" begin
+    # Test basic amino acid consensus
+    consensus = "ACDE"
+    bit_mat = SEQ2EXPdata.consensus_to_bitmatrix(consensus, SEQ2EXPdata.AminoAcid)
+    @test size(bit_mat) == (20, 4)
+    @test bit_mat isa BitMatrix
+    # Check one-hot encoding (A, C, D, E are at indices 1, 2, 3, 4)
+    @test bit_mat[1, 1] == true  # A at pos 1
+    @test bit_mat[2, 2] == true  # C at pos 2
+    @test bit_mat[3, 3] == true  # D at pos 3
+    @test bit_mat[4, 4] == true  # E at pos 4
+    # Check that each column has exactly one true
+    @test sum(bit_mat[:, 1]) == 1
+    @test sum(bit_mat[:, 2]) == 1
+    @test sum(bit_mat[:, 3]) == 1
+    @test sum(bit_mat[:, 4]) == 1
+    
+    # Test that invalid amino acids throw an error
+    @test_throws ArgumentError SEQ2EXPdata.consensus_to_bitmatrix("ACDX", SEQ2EXPdata.AminoAcid)
+    @test_throws ArgumentError SEQ2EXPdata.consensus_to_bitmatrix("ACDB", SEQ2EXPdata.AminoAcid)  # B is not standard
+end
+
+@testset "consensus_to_bitmatrix_auto" begin
+    # Test automatic inference for nucleotides
+    dna_consensus = "ATCG"
+    bit_mat_dna = SEQ2EXPdata.consensus_to_bitmatrix_auto(dna_consensus)
+    @test size(bit_mat_dna) == (4, 4)
+    
+    # Test automatic inference for amino acids
+    protein_consensus = "ACDEFGHI"
+    bit_mat_protein = SEQ2EXPdata.consensus_to_bitmatrix_auto(protein_consensus)
+    @test size(bit_mat_protein) == (20, 8)
+    
+    # Test that invalid characters throw an error
+    @test_throws ArgumentError SEQ2EXPdata.consensus_to_bitmatrix_auto("ATNGCG")  # N not allowed
+    @test_throws ArgumentError SEQ2EXPdata.consensus_to_bitmatrix_auto("ACDX")    # X not standard
+end
