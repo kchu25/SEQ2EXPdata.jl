@@ -22,6 +22,7 @@ ods = OnehotSEQ2EXP_Dataset(ds)
 struct OnehotSEQ2EXP_Dataset{T}
     raw_data::SEQ2EXP_Dataset
     onehot_sequences::AbstractArray{T, 4} # TODO: use BitMatrix?
+    onehot_sequences_mut::Union{AbstractArray{T, 4}, Nothing} # Mutation encoding relative to consensus
     prefix_offset::Int # For trimming, if needed
     X_dim::Tuple{Int, Int}  # (number of alphabets, length)
     Y_dim::Int # Number of label features
@@ -38,7 +39,14 @@ struct OnehotSEQ2EXP_Dataset{T}
         X_dim = (size(onehot_sequences, 1), size(onehot_sequences, 2))
         Y_dim = ndims(raw_data.labels) == 1 ? 1 : size(raw_data.labels, 1)
 
-        new{T}(raw_data, onehot_sequences, prefix_offset, X_dim, Y_dim)
+        # Compute mutation encoding if consensus exists
+        onehot_sequences_mut = if !isnothing(raw_data.consensus)
+            make_mutation_encoding(strs2encode, raw_data.consensus, prefix_offset; T=T)
+        else
+            nothing
+        end
+
+        new{T}(raw_data, onehot_sequences, onehot_sequences_mut, prefix_offset, X_dim, Y_dim)
     end
 end
 
@@ -59,6 +67,8 @@ function Base.getproperty(dataset::OnehotSEQ2EXP_Dataset, sym::Symbol)
         return dataset.onehot_sequences
     elseif sym === :Y
         return dataset.raw_data.labels
+    elseif sym === :X_mut
+        return getfield(dataset, :onehot_sequences_mut)
     else
         return getfield(dataset, sym)
     end
@@ -66,6 +76,7 @@ end
 
 # Accessors
 get_onehot(dataset::OnehotSEQ2EXP_Dataset) = dataset.onehot_sequences
+get_onehot_mut(dataset::OnehotSEQ2EXP_Dataset) = dataset.onehot_sequences_mut
 get_label(dataset::OnehotSEQ2EXP_Dataset) = dataset.raw_data.labels
 get_label_names(dataset::OnehotSEQ2EXP_Dataset) = dataset.raw_data.feature_names
 
@@ -94,6 +105,9 @@ function Base.show(io::IO, dataset::OnehotSEQ2EXP_Dataset)
     println(io, "OnehotSEQ2EXP_Dataset with $nseq sequences of length $seq_len")
     # Show onehot tensor shape
     println(io, "One-hot tensor shape: ", size(dataset.onehot_sequences))
+    if !isnothing(dataset.onehot_sequences_mut)
+        println(io, "Mutation encoding shape: ", size(dataset.onehot_sequences_mut))
+    end
     # Show label info if available
     if hasproperty(dataset.raw_data, :labels)
         labels = dataset.raw_data.labels

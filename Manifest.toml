@@ -1,7 +1,10 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.6"
+julia_version = "1.12.2"
 manifest_format = "2.0"
-project_hash = "b64ac56f20d4338755da22a02f0dd04184db954b"
+project_hash = "405dbc2f8744b3d05fbe1b63cfa005e12311e241"
 
-[deps]
+[[deps.SEQ2EXPdata]]
+path = "."
+uuid = "321b9d11-aa10-4af3-aaad-5d74081bdd4f"
+version = "1.0.4"

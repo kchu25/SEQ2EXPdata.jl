@@ -101,3 +101,93 @@ function consensus_to_bitmatrix_auto(consensus::String)
         throw(ArgumentError("Cannot infer sequence type for consensus - contains non-standard biological characters"))
     end
 end
+
+"""
+    make_mutation_encoding(sequences::Vector{String}, consensus::String, prefix_offset::Int; T::Type=Float64)
+
+Create a sparse one-hot encoding that marks only positions where sequences differ from the consensus.
+
+# Arguments
+- `sequences`: Vector of sequences to encode
+- `consensus`: Consensus sequence to compare against
+- `prefix_offset`: Number of bases trimmed from the prefix (for adjusting consensus position)
+- `T`: Element type for the output tensor (default: Float64)
+
+# Returns
+- A 4D tensor (channels × length × 1 × N) where 1s indicate mutations relative to consensus
+  - For nucleotides: 4 channels (A, C, G, T/U)
+  - For proteins: 20 channels (amino acids in alphabetical order)
+
+# Details
+Unlike standard one-hot encoding where every position has exactly one '1', mutation encoding
+only marks positions that differ from the consensus sequence. This creates a much sparser
+representation that emphasizes variation, which can be beneficial for representation learning
+in mutagenesis studies.
+
+# Example
+```julia
+seqs = ["ATCG", "ATCA", "ATGG"]
+consensus = "ATCG"
+mut_encoding = make_mutation_encoding(seqs, consensus, 0; T=Float32)
+# Only positions differing from consensus will have 1s
+```
+"""
+function make_mutation_encoding(sequences::Vector{String}, consensus::String, prefix_offset::Int; T::Type=Float64)
+    if isempty(sequences)
+        throw(ArgumentError("sequences cannot be empty"))
+    end
+    
+    # Infer sequence type
+    seq_type = infer_sequence_type(sequences)
+    alphabet_size = seq_type == Nucleotide ? 4 : 20
+    
+    # Adjust consensus for any prefix trimming
+    consensus_adjusted = if prefix_offset > 0 && length(consensus) > prefix_offset
+        consensus[prefix_offset+1:end]
+    else
+        consensus
+    end
+    
+    # Get dimensions
+    seq_length = length(sequences[1])
+    num_sequences = length(sequences)
+    
+    # Initialize output tensor (all zeros)
+    tensor = zeros(T, alphabet_size, seq_length, 1, num_sequences)
+    
+    # Encode only mutations (positions different from consensus)
+    for (seq_idx, seq) in enumerate(sequences)
+        for (pos_idx, char) in enumerate(seq)
+            # Get corresponding consensus position
+            if pos_idx <= length(consensus_adjusted)
+                consensus_char = consensus_adjusted[pos_idx]
+                
+                # Only encode if different from consensus
+                if uppercase(char) != uppercase(consensus_char)
+                    char_idx = if seq_type == Nucleotide
+                        get_nucleotide_index(uppercase(char))
+                    else
+                        get(AMINO_ACID_TO_INDEX, uppercase(char), 0)
+                    end
+                    
+                    if char_idx > 0
+                        tensor[char_idx, pos_idx, 1, seq_idx] = one(T)
+                    end
+                end
+            else
+                # Position beyond consensus length - encode normally
+                char_idx = if seq_type == Nucleotide
+                    get_nucleotide_index(uppercase(char))
+                else
+                    get(AMINO_ACID_TO_INDEX, uppercase(char), 0)
+                end
+                
+                if char_idx > 0
+                    tensor[char_idx, pos_idx, 1, seq_idx] = one(T)
+                end
+            end
+        end
+    end
+    
+    return tensor
+end

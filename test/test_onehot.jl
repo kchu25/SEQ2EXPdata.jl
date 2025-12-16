@@ -214,3 +214,40 @@ end
     @test_throws ArgumentError SEQ2EXPdata.consensus_to_bitmatrix_auto("ATNGCG")  # N not allowed
     @test_throws ArgumentError SEQ2EXPdata.consensus_to_bitmatrix_auto("ACDX")    # X not standard
 end
+
+@testset "Mutation Encoding (onehot_sequences_mut)" begin
+    # Test with consensus - mutation encoding should be created
+    seqs_with_consensus = ["ATCG", "ATCA", "ATGG"]
+    labels = [1.0, 2.0, 3.0]
+    ds_consensus = SEQ2EXP_Dataset(seqs_with_consensus, labels; GET_CONSENSUS=true)
+    ods_consensus = OnehotSEQ2EXP_Dataset(ds_consensus)
+    
+    @test !isnothing(ods_consensus.onehot_sequences_mut)
+    @test size(ods_consensus.onehot_sequences_mut) == size(ods_consensus.onehot_sequences)
+    
+    # Verify mutation encoding is sparser than regular encoding
+    num_ones_regular = sum(ods_consensus.onehot_sequences)
+    num_ones_mut = sum(ods_consensus.onehot_sequences_mut)
+    @test num_ones_mut < num_ones_regular
+    
+    # Test accessor
+    @test get_onehot_mut(ods_consensus) === ods_consensus.onehot_sequences_mut
+    
+    # Test virtual field X_mut
+    @test ods_consensus.X_mut === ods_consensus.onehot_sequences_mut
+    
+    # Test without consensus - mutation encoding should be nothing
+    seqs_no_consensus = ["ATCG", "GGTA"]
+    ds_no_consensus = SEQ2EXP_Dataset(seqs_no_consensus, [1.0, 2.0])
+    ods_no_consensus = OnehotSEQ2EXP_Dataset(ds_no_consensus)
+    
+    @test isnothing(ods_no_consensus.onehot_sequences_mut)
+    @test isnothing(get_onehot_mut(ods_no_consensus))
+    @test isnothing(ods_no_consensus.X_mut)
+    
+    # Show test should include mutation encoding info when present
+    io = IOBuffer()
+    show(io, ods_consensus)
+    output = String(take!(io))
+    @test occursin("Mutation encoding shape", output)
+end
