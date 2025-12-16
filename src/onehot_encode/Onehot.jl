@@ -64,6 +64,9 @@ This enables convenient and familiar ML-style access to features and labels with
 """
 function Base.getproperty(dataset::OnehotSEQ2EXP_Dataset, sym::Symbol)
     if sym === :X
+        if !isnothing(dataset.onehot_sequences_mut)
+            return dataset.onehot_sequences_mut
+        end
         return dataset.onehot_sequences
     elseif sym === :Y
         return dataset.raw_data.labels

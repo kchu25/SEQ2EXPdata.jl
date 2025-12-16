@@ -1,7 +1,7 @@
 name = "SEQ2EXPdata"
 uuid = "321b9d11-aa10-4af3-aaad-5d74081bdd4f"
 authors = ["Shane Kuei-Hsien Chu (skchu@wustl.edu)"]
-version = "1.0.5"
+version = "1.0.6"
 
 [compat]
 julia = "1.11.6"
