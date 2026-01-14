@@ -50,6 +50,33 @@ using Test
         )
     end
     
+    @testset "Padding Direction Tests" begin
+        # Test default right padding
+        ds_right = SEQ2EXP_Dataset(["ATCG", "AT"], [1.0, 2.0])
+        @test ds_right.strings[1] == "ATCG"
+        @test ds_right.strings[2] == "ATNN"  # Right-padded with N
+        
+        # Test explicit right padding
+        ds_right_explicit = SEQ2EXP_Dataset(["ATCG", "AT"], [1.0, 2.0]; pad_dir=:right)
+        @test ds_right_explicit.strings[1] == "ATCG"
+        @test ds_right_explicit.strings[2] == "ATNN"
+        
+        # Test left padding
+        ds_left = SEQ2EXP_Dataset(["ATCG", "AT"], [1.0, 2.0]; pad_dir=:left)
+        @test ds_left.strings[1] == "ATCG"
+        @test ds_left.strings[2] == "NNAT"  # Left-padded with N
+        
+        # Test left padding with multiple sequences
+        ds_left_multi = SEQ2EXP_Dataset(["ATCGTA", "AT", "ATCG"], [1.0, 2.0, 3.0]; pad_dir=:left)
+        @test ds_left_multi.strings[1] == "ATCGTA"
+        @test ds_left_multi.strings[2] == "NNNNAT"  # 4 N's on left
+        @test ds_left_multi.strings[3] == "NNATCG"  # 2 N's on left
+        
+        # Test invalid pad_dir
+        @test_throws ArgumentError SEQ2EXP_Dataset(["AT"], [1.0]; pad_dir=:center)
+        @test_throws ArgumentError SEQ2EXP_Dataset(["AT"], [1.0]; pad_dir=:invalid)
+    end
+    
     @testset "Accessor Functions" begin
         strings = ["ATCG", "GGTA"]
         labels = [1.0, 2.0]

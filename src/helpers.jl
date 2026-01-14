@@ -1,14 +1,37 @@
 """
-    pad_sequences_to_maxlen(seqs::Vector{String}; padchar::Char = 'N')
+    pad_sequences_to_maxlen(seqs::Vector{String}; max_len=nothing, padchar::Char = 'N', pad_dir::Symbol = :right)
 
 Pad all sequences in the input vector to the maximum sequence length using the specified pad character (default 'N').
 Returns a new vector of padded sequences.
+
+# Arguments
+- `seqs::Vector{String}`: Vector of sequences to pad
+- `max_len`: Maximum length (default: maximum length in seqs)
+- `padchar::Char`: Padding character (default: 'N')
+- `pad_dir::Symbol`: Padding direction, either `:right` (default) or `:left`
+
+# Examples
+```julia
+pad_sequences_to_maxlen(["ATCG", "AT"])           # "ATCG", "ATNN" (right padding)
+pad_sequences_to_maxlen(["ATCG", "AT"], pad_dir=:left)  # "ATCG", "NNAT" (left padding)
+```
 """
-function pad_sequences_to_maxlen(seqs::Vector{String}; max_len=nothing, padchar::Char = 'N')
+function pad_sequences_to_maxlen(seqs::Vector{String}; max_len=nothing, padchar::Char = 'N', pad_dir::Symbol = :right)
     if isnothing(max_len)
         maxlen = maximum(length.(seqs))
     end
-    return [seq * repeat(string(padchar), maxlen - length(seq)) for seq in seqs]
+    
+    # Validate pad_dir
+    if !(pad_dir in (:left, :right))
+        throw(ArgumentError("pad_dir must be either :left or :right, got :$pad_dir"))
+    end
+    
+    # Pad sequences based on direction
+    if pad_dir == :right
+        return [seq * repeat(string(padchar), maxlen - length(seq)) for seq in seqs]
+    else  # :left
+        return [repeat(string(padchar), maxlen - length(seq)) * seq for seq in seqs]
+    end
 end
 
 """

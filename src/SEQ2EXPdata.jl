@@ -9,19 +9,23 @@ module SEQ2EXPdata
 
 include("helpers.jl")
 """
-    SEQ2EXP_Dataset{T<:Real}(strings, labels; feature_names=nothing)
+    SEQ2EXP_Dataset{T<:Real}(strings, labels; feature_names=nothing, GET_CONSENSUS=false, type=T, pad_dir=:right)
 
 A container for biological sequence data and corresponding expression labels.
 
 # Arguments
-- `strings::Vector{String}`: Vector of biological sequences (all must be the same length).
+- `strings::Vector{String}`: Vector of biological sequences. If lengths vary, they will be automatically padded.
 - `labels::Union{Vector{T}, Matrix{T}}`: Expression labels for each sequence. Can be a vector (single label per sequence) or a matrix (multiple labels per sequence).
 - `feature_names::Union{Vector{String}, Nothing}`: Optional names for each feature (column) in `labels`.
+- `GET_CONSENSUS::Bool`: Compute consensus sequence (default: false).
+- `type::Type{<:Real}`: Target numeric type for labels (default: inferred from input).
+- `pad_dir::Symbol`: Padding direction for variable-length sequences, either `:right` (default) or `:left`.
 
 # Examples
 ```julia
 ds = SEQ2EXP_Dataset(["ATCG", "GGTA"], [1.2, 3.4])
 ds2 = SEQ2EXP_Dataset(["ATCG", "GGTA"], [1.2 2.3; 3.4 4.5], feature_names=["exp1", "exp2"])
+ds3 = SEQ2EXP_Dataset(["ATCG", "AT"], [1.0, 2.0], pad_dir=:left)  # Left-padded: "ATCG", "NNAT"
 ```
 """
 struct SEQ2EXP_Dataset{T <: Real}
@@ -36,8 +40,14 @@ struct SEQ2EXP_Dataset{T <: Real}
         labels::Union{Vector{T}, Matrix{T}}, 
         feature_names::Union{Vector{String}, Nothing}=nothing;
         GET_CONSENSUS::Bool=false,
-        type::Type{<:Real}=T
+        type::Type{<:Real}=T,
+        pad_dir::Symbol=:right
         ) where T
+
+        # Validate pad_dir
+        if !(pad_dir in (:left, :right))
+            throw(ArgumentError("pad_dir must be either :left or :right, got :$pad_dir"))
+        end
 
         # Convert labels to the specified type if different from T
         if type != T
@@ -51,12 +61,12 @@ struct SEQ2EXP_Dataset{T <: Real}
         
         # check if all strings are the same length
         if !check_all_strings_same_length(strings) # if not same length
-            @info "Strings are of varying lengths. Apply padding."
+            @info "Strings are of varying lengths. Apply padding ($(pad_dir))."
             if GET_CONSENSUS
                 most_common_length_indices = get_most_common_length_indices(strings; verbose=true)
                 consensus = get_consensus(strings[collect(most_common_length_indices)])
             end
-            strings = pad_sequences_to_maxlen(strings)
+            strings = pad_sequences_to_maxlen(strings; pad_dir=pad_dir)
         else
             # All strings same length
             if GET_CONSENSUS
