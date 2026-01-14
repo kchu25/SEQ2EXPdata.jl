@@ -49,7 +49,8 @@ struct SEQ2EXP_Dataset{T <: Real}
         most_common_length_indices = nothing
         consensus = nothing
         
-        if !check_all_strings_same_length(strings)
+        # check if all strings are the same length
+        if !check_all_strings_same_length(strings) # if not same length
             @info "Strings are of varying lengths. Apply padding."
             if GET_CONSENSUS
                 most_common_length_indices = get_most_common_length_indices(strings; verbose=true)
