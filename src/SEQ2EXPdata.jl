@@ -7,6 +7,8 @@ Provides the `SEQ2EXP_Dataset` type and utility functions for validation and man
 """
 module SEQ2EXPdata
 
+using Random
+
 include("helpers.jl")
 """
     SEQ2EXP_Dataset{T<:Real}(strings, labels; feature_names=nothing, GET_CONSENSUS=false, type=T, pad_dir=:right)
@@ -129,6 +131,7 @@ include("checks.jl")
 include("consensus.jl")
 include("show.jl")
 include("utils.jl")
+include("subsample.jl")
 include("onehot_encode/Onehot.jl")
 
 
@@ -140,6 +143,7 @@ export SEQ2EXP_Dataset,
        get_feature_names, 
        get_sequence_length, 
        get_feature_counts,
+       subsample,
        OnehotSEQ2EXP_Dataset,
        get_feature_dimension,
        get_label_dimension,

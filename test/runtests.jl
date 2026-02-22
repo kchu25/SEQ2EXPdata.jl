@@ -240,5 +240,97 @@ using Test
         @test ds_varied.consensus !== nothing  # Consensus should be computed from most common length
     end
 
+    @testset "Subsample Tests" begin
+        using Random
+
+        @testset "No-op when dataset is small enough" begin
+            strings = ["ATCG", "GGTA", "CCCC"]
+            labels = [1.0, 2.0, 3.0]
+            ds = SEQ2EXP_Dataset(strings, labels)
+            ds_sub = subsample(ds; n=3000)
+            @test ds_sub === ds  # same object returned
+            ds_sub2 = subsample(ds; n=3)
+            @test ds_sub2 === ds
+        end
+
+        @testset "Basic subsampling with vector labels" begin
+            rng = MersenneTwister(42)
+            strings = ["ATCG", "GGTA", "CCCC", "TTTT", "AAAA"]
+            labels = [1.0, 2.0, 3.0, 4.0, 5.0]
+            ds = SEQ2EXP_Dataset(strings, labels)
+            ds_sub = subsample(ds; n=3, rng=rng)
+
+            @test length(ds_sub.strings) == 3
+            @test length(ds_sub.labels) == 3
+            # Ensure selected labels correspond to selected strings
+            for i in 1:3
+                idx = findfirst(==(ds_sub.strings[i]), strings)
+                @test ds_sub.labels[i] == labels[idx]
+            end
+            @test ds_sub.feature_names === nothing
+            @test ds_sub.consensus === nothing
+            @test ds_sub.most_common_length_indices === nothing
+        end
+
+        @testset "Subsampling with matrix labels" begin
+            rng = MersenneTwister(123)
+            strings = ["ATCG", "GGTA", "CCCC", "TTTT"]
+            labels = [1.0 2.0 3.0 4.0; 5.0 6.0 7.0 8.0]
+            feature_names = ["exp1", "exp2"]
+            ds = SEQ2EXP_Dataset(strings, labels, feature_names)
+            ds_sub = subsample(ds; n=2, rng=rng)
+
+            @test length(ds_sub.strings) == 2
+            @test size(ds_sub.labels) == (2, 2)
+            @test ds_sub.feature_names == ["exp1", "exp2"]
+        end
+
+        @testset "Subsampling preserves consensus reconstruction" begin
+            rng = MersenneTwister(99)
+            strings = ["ATCG", "ATCA", "ATGG", "ATCG", "ATCA"]
+            labels = [1.0, 2.0, 3.0, 4.0, 5.0]
+            ds = SEQ2EXP_Dataset(strings, labels; GET_CONSENSUS=true)
+            @test has_consensus(ds)
+
+            ds_sub = subsample(ds; n=3, rng=rng)
+            @test length(ds_sub.strings) == 3
+            @test has_consensus(ds_sub)  # consensus should be reconstructed
+            @test length(get_consensus(ds_sub)) == 4  # same sequence length
+        end
+
+        @testset "Subsampling without consensus stays without consensus" begin
+            rng = MersenneTwister(7)
+            strings = ["ATCG", "GGTA", "CCCC", "TTTT"]
+            labels = [1.0, 2.0, 3.0, 4.0]
+            ds = SEQ2EXP_Dataset(strings, labels)  # no consensus
+            ds_sub = subsample(ds; n=2, rng=rng)
+
+            @test !has_consensus(ds_sub)
+            @test ds_sub.consensus === nothing
+            @test ds_sub.most_common_length_indices === nothing
+        end
+
+        @testset "Reproducibility with fixed rng" begin
+            strings = ["ATCG", "GGTA", "CCCC", "TTTT", "AAAA", "GCGC"]
+            labels = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+            ds = SEQ2EXP_Dataset(strings, labels)
+
+            ds_sub1 = subsample(ds; n=3, rng=MersenneTwister(42))
+            ds_sub2 = subsample(ds; n=3, rng=MersenneTwister(42))
+            @test ds_sub1.strings == ds_sub2.strings
+            @test ds_sub1.labels == ds_sub2.labels
+        end
+
+        @testset "Default n=3000 boundary" begin
+            # Build a dataset with exactly 3001 sequences
+            strings = ["ATCG" for _ in 1:3001]
+            labels = collect(Float64, 1:3001)
+            ds = SEQ2EXP_Dataset(strings, labels)
+            ds_sub = subsample(ds; rng=MersenneTwister(1))
+            @test length(ds_sub.strings) == 3000
+            @test length(ds_sub.labels) == 3000
+        end
+    end
+
     include("test_onehot.jl")
 end
