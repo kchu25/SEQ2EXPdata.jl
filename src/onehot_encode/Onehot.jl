@@ -83,8 +83,11 @@ get_onehot_mut(dataset::OnehotSEQ2EXP_Dataset) = dataset.onehot_sequences_mut
 get_label(dataset::OnehotSEQ2EXP_Dataset) = dataset.raw_data.labels
 get_label_names(dataset::OnehotSEQ2EXP_Dataset) = dataset.raw_data.feature_names
 
-# Convenient accessors for features (X) and labels (Y)
-get_X(dataset::OnehotSEQ2EXP_Dataset) = dataset.onehot_sequences
+# Convenient accessors for features (X) and labels (Y).
+# `get_X` mirrors the `.X` virtual field: it returns the mutation encoding when a
+# consensus is present, otherwise the standard one-hot tensor. Use `get_onehot` if you
+# always want the standard one-hot tensor regardless of consensus.
+get_X(dataset::OnehotSEQ2EXP_Dataset) = dataset.X
 get_Y(dataset::OnehotSEQ2EXP_Dataset) = dataset.raw_data.labels
 get_XY(dataset::OnehotSEQ2EXP_Dataset) = (get_X(dataset), get_Y(dataset))
 

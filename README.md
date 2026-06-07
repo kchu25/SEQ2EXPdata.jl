@@ -73,6 +73,9 @@ has_consensus(dataset)  # true
 get_consensus(dataset)  # "ATCG" (most frequent nucleotide per position)
 ```
 
+Requesting a consensus with `GET_CONSENSUS=true` also enables **mutation encoding** when the
+data is one-hot encoded (see [Mutation Encoding](#mutation-encoding-sparse-relative-to-consensus) below).
+
 ## Concise Syntax with @seq2exp Macro
 
 ```julia
@@ -140,6 +143,58 @@ get_X_dim(onehot_dataset) # The shape of each encoded string, e.g. (4, 100) for 
 get_Y_dim(onehot_dataset) # Equal to `get_feature_counts`
 ```
 
+### Mutation Encoding (sparse, relative to consensus)
+
+For mutagenesis studies you can encode **only the positions that differ from a consensus
+sequence**, instead of every base. This produces a much sparser tensor that emphasizes
+variation, which can help representation learning.
+
+**How to enable it:** request a consensus at construction time by passing `GET_CONSENSUS=true`
+to `SEQ2EXP_Dataset` (or the `@seq2exp` macro). When a consensus is present, the
+`OnehotSEQ2EXP_Dataset` constructor automatically computes the mutation encoding alongside the
+standard one-hot tensor — no extra flag is needed:
+
+```julia
+sequences = ["ATCG", "ATCA", "ATGG"]
+labels    = [1.0, 2.0, 3.0]
+
+# Enable by requesting a consensus
+dataset = SEQ2EXP_Dataset(sequences, labels; GET_CONSENSUS=true)
+# or, with the macro:
+# dataset = @seq2exp ["ATCG", "ATCA", "ATGG"] [1.0, 2.0, 3.0] nothing GET_CONSENSUS=true
+
+onehot_dataset = OnehotSEQ2EXP_Dataset(dataset)
+
+# Access the mutation encoding
+onehot_dataset.X_mut                 # 4D tensor (alphabets × length × 1 × N), or `nothing`
+onehot_dataset.onehot_sequences_mut  # same thing (the underlying field)
+get_onehot_mut(onehot_dataset)       # accessor form
+```
+
+Without `GET_CONSENSUS=true` there is no consensus, so `onehot_dataset.X_mut` is `nothing`.
+
+**How it differs from standard one-hot:** standard encoding sets exactly one `1` per position;
+mutation encoding leaves a position all-zero when it matches the consensus and sets a single `1`
+only at the *mutated* base.
+
+Visual example — consensus `"ATCG"`, sequence `"ATGG"` (position 3 mutated C→G):
+```
+Position:  A  T  G  G
+Channel 1: 0  0  0  0  (A)
+Channel 2: 0  0  0  0  (C)
+Channel 3: 0  0  1  0  (G)   <- only the mutated position is marked
+Channel 4: 0  0  0  0  (T/U)
+```
+
+> **Important — what `.X` / `get_X` return:** when a mutation encoding is present, both
+> `onehot_dataset.X` and `get_X(onehot_dataset)` return the **mutation** encoding (not the
+> standard one-hot). If you specifically need the dense standard one-hot tensor, use
+> `onehot_dataset.onehot_sequences` or `get_onehot(onehot_dataset)`.
+>
+> Two other caveats: [common prefixes/suffixes are trimmed first](#trimming-common-prefixessuffixes)
+> (so the consensus is aligned to the trimmed region), and a mutation to an ambiguous/unknown
+> character is silently skipped (not marked as a mutation).
+
 ### Trimming Common Prefixes/Suffixes
 
 In mutagenesis studies, sequences often share a common prefix and/or suffix. The `OnehotSEQ2EXP_Dataset` constructor trims these by default, so only the variable region is one-hot encoded (while storing the prefix offset for reference):
@@ -199,6 +254,8 @@ dataloader = Flux.DataLoader(
 - `get_feature_counts(dataset)` - Number of labels for each sequence
 - `has_consensus(dataset)` - Check if consensus exists
 - `get_consensus(dataset)` - Retrieve consensus sequence
+- `get_onehot(onehot_dataset)` - Standard one-hot tensor
+- `get_onehot_mut(onehot_dataset)` - Mutation encoding tensor (or `nothing` if no consensus)
 
 ## Documentation
 

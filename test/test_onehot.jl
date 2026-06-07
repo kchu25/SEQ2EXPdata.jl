@@ -251,3 +251,30 @@ end
     output = String(take!(io))
     @test occursin("Mutation encoding shape", output)
 end
+
+@testset "get_X / .X mirror mutation encoding" begin
+    # With a consensus, both `.X` and `get_X` should return the mutation encoding
+    seqs = ["ATCG", "ATCA", "ATGG"]
+    labels = [1.0, 2.0, 3.0]
+    ods = OnehotSEQ2EXP_Dataset(SEQ2EXP_Dataset(seqs, labels; GET_CONSENSUS=true))
+
+    @test !isnothing(ods.onehot_sequences_mut)            # precondition: consensus present
+    @test get_X(ods) === ods.X                            # accessor matches virtual field
+    @test get_X(ods) === ods.onehot_sequences_mut         # both are the mutation encoding
+    @test get_X(ods) !== ods.onehot_sequences             # ...not the standard one-hot
+
+    # get_onehot always returns the standard (dense) one-hot, regardless of consensus
+    @test get_onehot(ods) === ods.onehot_sequences
+
+    # get_XY should carry the mutation encoding as its X component
+    X, Y = get_XY(ods)
+    @test X === ods.onehot_sequences_mut
+    @test Y === ods.raw_data.labels
+
+    # Without a consensus, both `.X` and `get_X` fall back to the standard one-hot
+    ods_plain = OnehotSEQ2EXP_Dataset(SEQ2EXP_Dataset(["ATCG", "GGTA"], [1.0, 2.0]))
+    @test isnothing(ods_plain.onehot_sequences_mut)
+    @test get_X(ods_plain) === ods_plain.X
+    @test get_X(ods_plain) === ods_plain.onehot_sequences
+    @test get_onehot(ods_plain) === ods_plain.onehot_sequences
+end
