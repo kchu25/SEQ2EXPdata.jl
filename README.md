@@ -243,9 +243,65 @@ dataloader = Flux.DataLoader(
 - `SEQ2EXP_Dataset` - Main data structure for sequences and labels
 - `OnehotSEQ2EXP_Dataset` - One-hot encoded version for ML workflows
 
-### Constructors
-- `SEQ2EXP_Dataset(sequences, labels; feature_names=nothing, GET_CONSENSUS=false)`
-- `@seq2exp sequences labels [feature_names] [GET_CONSENSUS=true]`
+### Constructing a `SEQ2EXP_Dataset`
+
+```julia
+SEQ2EXP_Dataset(
+    strings,
+    labels,
+    feature_names = nothing;   # positional (optional)
+    GET_CONSENSUS = false,     # keyword
+    type = eltype(labels),     # keyword
+    pad_dir = :right,          # keyword
+)
+```
+
+**Positional arguments**
+
+| Argument        | Type                                   | Required | Default   | Description |
+|-----------------|----------------------------------------|----------|-----------|-------------|
+| `strings`       | `Vector{String}`                       | yes      | —         | Biological sequences (DNA, RNA, or protein). If lengths vary, they are automatically padded (see `pad_dir`). |
+| `labels`        | `Vector{T}` or `Matrix{T}` (`T<:Real`) | yes      | —         | Expression labels. `Vector` = one label per sequence; `Matrix` = multiple features per sequence. |
+| `feature_names` | `Vector{String}` or `Nothing`          | no       | `nothing` | Optional names for each feature (row) of a `Matrix` of `labels`. Length must match the number of features. |
+
+`labels` shape:
+- **Vector** — `length(labels)` must equal `length(strings)`.
+- **Matrix** — the **second dimension** (columns) must equal `length(strings)`; each column holds all features for one sequence. When `feature_names` is given, its length must equal the number of rows (features).
+
+**Keyword arguments**
+
+| Keyword         | Type            | Default                  | Description |
+|-----------------|-----------------|--------------------------|-------------|
+| `GET_CONSENSUS` | `Bool`          | `false`                  | Compute and store a consensus sequence. If sequences vary in length, the consensus is computed only over the subset with the **most common** length. Enables mutation encoding downstream. |
+| `type`          | `Type{<:Real}`  | inferred from `labels`   | Target numeric type for `labels`; converts if different (e.g. `type=Float32`). |
+| `pad_dir`       | `Symbol`        | `:right`                 | Padding direction for variable-length sequences. Must be `:right` or `:left`. Padding uses the character `'N'`. |
+
+**Padding** happens only when sequences differ in length: all are padded to the longest length using `'N'`. `:right` appends (`"AT"` → `"ATNN"`); `:left` prepends (`"AT"` → `"NNAT"`).
+
+**Validation** — the constructor throws an `ArgumentError` when:
+- `pad_dir` is not `:left` or `:right`,
+- the number of labels does not match the number of sequences, or
+- `feature_names` is given but its length does not match the number of features.
+
+```julia
+# 1. Single label per sequence
+SEQ2EXP_Dataset(["ATCG", "GGTA"], [1.2, 3.4])
+
+# 2. Multiple features with names
+SEQ2EXP_Dataset(["ATCG", "GGTA"], [1.2 2.3; 3.4 4.5], feature_names=["exp1", "exp2"])
+
+# 3. Left-padding variable-length sequences  ->  "ATCG", "NNAT"
+SEQ2EXP_Dataset(["ATCG", "AT"], [1.0, 2.0], pad_dir=:left)
+
+# 4. Force a label type and compute the consensus
+SEQ2EXP_Dataset(["ATCG", "ATCA"], [1.0, 2.0]; type=Float32, GET_CONSENSUS=true)
+```
+
+**Convenience macro** — `@seq2exp` forwards `sequences`, `labels`, `feature_names`, and the `GET_CONSENSUS` keyword. Use the full constructor when you need `type` or `pad_dir`.
+
+```julia
+@seq2exp sequences labels [feature_names] [GET_CONSENSUS=true]
+```
 
 ### Utility Functions
 - `get_sequence_and_labels(dataset)` - Extract data as tuple
