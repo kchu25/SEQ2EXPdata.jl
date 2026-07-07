@@ -1,3 +1,6 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 SEQ2EXPdata = "321b9d11-aa10-4af3-aaad-5d74081bdd4f"
+
+[sources]
+SEQ2EXPdata = {path = "/home/kchu25/Desktop/work/code/dev/SEQ2EXPdata.jl"}

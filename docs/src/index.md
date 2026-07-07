@@ -35,6 +35,10 @@ ds2 = SEQ2EXP_Dataset(
 ```@index
 ```
 
+The constructor and the `@seq2exp` macro are documented in detail on the
+[Constructing a Dataset](@ref "Constructing a `SEQ2EXP_Dataset`") page.
+
 ```@autodocs
 Modules = [SEQ2EXPdata]
+Filter = t -> t !== SEQ2EXPdata.SEQ2EXP_Dataset && t !== getfield(SEQ2EXPdata, Symbol("@seq2exp"))
 ```
