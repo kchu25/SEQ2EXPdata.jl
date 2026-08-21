@@ -151,3 +151,56 @@ function consensus_modal_frequencies(strings::Vector{String})
     end
     return freqs
 end
+
+"""
+    _resolve_reference(strings, wild_type) -> String
+
+Reference sequence for the mutation encoding.
+
+When `wild_type` is supplied it is validated and returned; the plurality vote is
+not consulted. When it is `nothing` the consensus is computed as before, with
+its low-modal-frequency warning.
+
+Why supplying it matters: the consensus is a per-column plurality vote, and in a
+saturating library the wild-type residue can be a minority. In
+`SPG1_STRSG_Wu_2016` positions 265/266/267/280 are each mutated in ~95% of
+149,360 variants, so every residue sits near 5% and the vote is noise — it
+picked `W` at 5.3% over the true wild type `V` at 5.1%. The encoding then
+inverts at those positions: variants carrying the real wild-type residue are
+marked as mutated, and the common mutants are marked as wild type.
+"""
+function _resolve_reference(strings::Vector{String}, wild_type::Union{AbstractString,Nothing})
+    wild_type === nothing && return get_consensus(strings)
+
+    wt = String(wild_type)
+    L = length(strings[1])
+    length(wt) == L || throw(ArgumentError(
+        "wild_type has length $(length(wt)) but the sequences have length $L"))
+
+    # Alphabet check: a wild type built from a different alphabet (or a stray
+    # gap/stop character) would encode every position as a mutation.
+    seq_chars = Set{Char}()
+    for s in strings, c in s; push!(seq_chars, c); end
+    unknown = setdiff(Set(collect(wt)), seq_chars)
+    isempty(unknown) || @warn "wild_type contains characters absent from the sequences" characters=sort(collect(unknown))
+
+    # Sanity diagnostic: where does the supplied wild type disagree with the
+    # plurality, and was the plurality trustworthy there? Disagreement at
+    # low-modal-frequency positions is EXPECTED and is the whole point.
+    # Widespread disagreement at high-frequency positions means the wrong
+    # sequence was passed.
+    freqs = consensus_modal_frequencies(strings)
+    voted = get_consensus(strings; warn_on_low_modal=false)
+    diff  = [i for i in 1:L if wt[i] != voted[i]]
+    if !isempty(diff)
+        suspicious = [i for i in diff if freqs[i] >= 0.5]
+        @info "wild_type differs from the plurality vote" n_positions=length(diff) positions=first(diff, 10) modal_freq_there=[round(freqs[i], digits=3) for i in first(diff, 10)]
+        isempty(suspicious) ||
+            @warn """
+                wild_type disagrees with the plurality at $(length(suspicious)) position(s)
+                where the plurality was well supported (modal frequency >= 0.5).
+                That is not the saturated-library signature; check that the right
+                reference sequence was passed.""" positions=first(suspicious, 10)
+    end
+    return wt
+end

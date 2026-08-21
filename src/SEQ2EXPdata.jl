@@ -42,6 +42,7 @@ struct SEQ2EXP_Dataset{T <: Real}
         labels::Union{Vector{T}, Matrix{T}}, 
         feature_names::Union{Vector{String}, Nothing}=nothing;
         GET_CONSENSUS::Bool=false,
+        wild_type::Union{AbstractString,Nothing}=nothing,
         type::Type{<:Real}=T,
         pad_dir::Symbol=:right
         ) where T
@@ -49,6 +50,13 @@ struct SEQ2EXP_Dataset{T <: Real}
         # Validate pad_dir
         if !(pad_dir in (:left, :right))
             throw(ArgumentError("pad_dir must be either :left or :right, got :$pad_dir"))
+        end
+
+        # Supplying a wild type only makes sense when the mutation encoding is
+        # wanted, and requiring both invites the silent failure where `type=:mut`
+        # trains on plain one-hot. So it implies GET_CONSENSUS.
+        if wild_type !== nothing && !GET_CONSENSUS
+            GET_CONSENSUS = true
         end
 
         # Convert labels to the specified type if different from T
@@ -66,13 +74,14 @@ struct SEQ2EXP_Dataset{T <: Real}
             @info "Strings are of varying lengths. Apply padding ($(pad_dir))."
             if GET_CONSENSUS
                 most_common_length_indices = get_most_common_length_indices(strings; verbose=true)
-                consensus = get_consensus(strings[collect(most_common_length_indices)])
+                modal_subset = strings[collect(most_common_length_indices)]
+                consensus = _resolve_reference(modal_subset, wild_type)
             end
             strings = pad_sequences_to_maxlen(strings; pad_dir=pad_dir)
         else
             # All strings same length
             if GET_CONSENSUS
-                consensus = get_consensus(strings)
+                consensus = _resolve_reference(strings, wild_type)
             end
         end
             
